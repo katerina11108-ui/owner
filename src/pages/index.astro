@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/home/Hero.astro';
+import DirectionGroups from '../components/home/DirectionGroups.astro';
+import PsychiatristBanner from '../components/PsychiatristBanner.astro';
+import Objections from '../components/home/Objections.astro';
+import Specialists from '../components/home/Specialists.astro';
+import Reviews from '../components/home/Reviews.astro';
+import WhoDoINeed from '../components/home/WhoDoINeed.astro';
+import HowToBook from '../components/home/HowToBook.astro';
+import Trust from '../components/Trust.astro';
+import Founders from '../components/Founders.astro';
+import Formats from '../components/Formats.astro';
+import Events from '../components/home/Events.astro';
+import FAQ from '../components/FAQ.astro';
+import CTAPrefooter from '../components/CTAPrefooter.astro';
+---
+<Base title="Neoiatria">
+  <Hero />
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="t-h2 c-brand">Що з цього про вас?</h2>
+        <p class="t-body-l c-secondary">Оберіть, що відгукується, — покажемо, хто з цим працює і коли вільний.</p>
+      </div>
+      <DirectionGroups />
+      <div class="banner-gap"><PsychiatristBanner /></div>
+    </div>
+  </section>
+  <Objections />
+  <Specialists />
+  <Reviews />
+  <WhoDoINeed />
+  <HowToBook />
+  <Trust />
+  <Founders />
+  <Formats />
+  <Events />
+  <FAQ />
+  <CTAPrefooter />
+</Base>
+<style>.banner-gap{margin-top:var(--space-40)}</style>

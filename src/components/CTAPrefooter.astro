@@ -1,0 +1,54 @@
+---
+import Icon from './Icon.astro';
+const items = [
+  { icon: 'compass', title: 'Я знаю, що мене турбує', text: 'Оберіть запит — покажемо фахівців саме з ним і їхні вільні години', href: '/directions', primary: true },
+  { icon: 'help', title: 'Не знаю, до кого звернутися', text: '5 коротких питань — і добірка фахівців саме під вашу ситуацію', href: '/quiz' },
+  { icon: 'psychiatrist', title: 'Мені потрібен психіатр', text: 'Діагностика і, якщо треба, ліки — в одній команді з вашим терапевтом', href: '/directions/psychiatric-consultation' },
+];
+---
+<section class="pre on-brand">
+  <div class="container inner">
+    <div class="left">
+      <h2 class="t-h2 c-on-brand">Перший крок найважчий. Ми зробили його коротким.</h2>
+      <p class="c-on-brand-2">Оберіть, що ближче саме зараз. Помилитися неможливо — на кожному кроці підкажемо.</p>
+      <img src="/images/session-wide.jpg" alt="" width="480" height="160" loading="lazy" />
+      <p class="t-caption c-on-brand-muted">Онлайн або в офісі в Києві · Відгуки лише після завершених сесій</p>
+    </div>
+    <div class="right">
+      <p class="t-body-s w-500 c-on-brand-accent">З чого почнемо?</p>
+      <ul>
+        {items.map((it) => (
+          <li><a href={it.href} class="row">
+            <span class="ic"><Icon name={it.icon} size={20} /></span>
+            <span class="tx"><b>{it.title}</b><span>{it.text}</span></span>
+            <span class:list={['go', { 'go--primary': it.primary }]}><Icon name="arrow-right" size={18} /></span>
+          </a></li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+<style>
+  .pre{background:var(--bg-brand);margin-top:var(--section-gap)}
+  .inner{display:flex;gap:var(--space-48);align-items:flex-end;padding-block:var(--space-88)}
+  .left{width:480px;flex:none;display:flex;flex-direction:column;gap:var(--space-20)}
+  .left img{width:100%;height:160px;object-fit:cover;border-radius:var(--radius-xl);margin-top:var(--space-12);background:var(--bg-brand-hover)}
+  .right{flex:1;display:flex;flex-direction:column;gap:var(--space-16)}
+  .row{display:flex;align-items:center;gap:var(--space-16);padding-block:var(--space-20);border-bottom:1px solid var(--border-on-brand-strong)}
+  li:first-child .row{border-top:1px solid var(--border-on-brand-strong)}
+  .ic{width:40px;height:40px;flex:none;border-radius:50%;background:var(--bg-brand-hover);display:grid;place-items:center;color:var(--text-on-brand-accent)}
+  .tx{flex:1;display:flex;flex-direction:column;gap:2px}
+  .tx b{font-size:18px;line-height:28px;font-weight:600;color:var(--text-on-brand)}
+  .tx span{font-size:14px;line-height:20px;color:var(--text-on-brand-muted)}
+  .go{width:40px;height:40px;flex:none;border-radius:50%;background:var(--bg-brand-hover);display:grid;place-items:center;color:var(--text-on-brand);transition:background-color .15s}
+  .go--primary{background:var(--bg-accent-on-brand);color:var(--text-brand)}
+  .row:hover .go{background:var(--bg-accent-on-brand);color:var(--text-brand)}
+  @media (max-width:1023px){
+    .inner{flex-direction:column;align-items:stretch;padding-block:var(--space-48);gap:var(--space-32)}
+    .left{width:auto}
+    .left img{display:none}
+    .left .t-caption{display:none}
+    .row{padding-block:var(--space-16)}
+    .tx b{font-size:16px;line-height:24px}
+  }
+</style>

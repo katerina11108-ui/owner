@@ -1,0 +1,420 @@
+---
+// Профіль фахівця (/specialists/:slug). Усі блоки — з полів CMS-типу Specialist; порожнє поле → блок не показуємо.
+// Якорі: #book (картка запису), #about, #video. Запис і питання ведуть у флоу /booking та /ask (окремі екрани макета).
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Button from '../../components/Button.astro';
+import Icon from '../../components/Icon.astro';
+import CrisisStrip from '../../components/CrisisStrip.astro';
+import CTAPrefooterSpecialist from '../../components/CTAPrefooterSpecialist.astro';
+import { type Specialist, specialists, toUAH, priceLabel, initials, firstSession, parseEducation } from '../../data/specialists';
+import { findDirection } from '../../data/directions';
+import { methodInfo } from '../../data/methods';
+import { reviews as allReviews, trustPoints } from '../../data/content';
+import { settings, ua, uah } from '../../data/site';
+
+export const getStaticPaths = () => specialists.map((sp) => ({ params: { slug: sp.slug }, props: { sp } }));
+interface Props { sp: Specialist }
+const { sp } = Astro.props;
+
+const first = firstSession(sp);
+const firstIndex = sp.sessions.indexOf(first);
+const bookHref = (i: number) => `/booking?specialist=${sp.slug}&session=${i}`;
+const askHref = `/ask?specialist=${sp.slug}`;
+const when = sp.slots?.[0] ? `${sp.slots[0].day}, ${sp.slots[0].time}` : sp.nearest;
+const city = sp.offline ? (/дніпро/i.test(sp.offline) ? 'Дніпро' : 'Київ') : '';
+const formats = [sp.online && 'Онлайн', sp.offline && `Офлайн (${city})`].filter(Boolean).join(' · ');
+const address = sp.offline && /вул\./i.test(sp.offline) ? sp.offline : '';
+const intro = sp.quote ?? sp.summary;
+const about = (sp.about ?? sp.summary).split('\n\n');
+const requests = sp.requests.map(findDirection).filter((d) => !!d);
+const notWith = sp.notWith?.split(/,\s*/).map((s) => s[0].toUpperCase() + s.slice(1)) ?? [];
+// Пояснення методу показуємо один раз, навіть якщо кілька методів фахівця належать до одного підходу.
+const seenMethods = new Set<string>();
+const methods = sp.methods.map((name) => { const m = methodInfo(name); const info = m && !seenMethods.has(m.short) ? m : undefined; if (m) seenMethods.add(m.short); return { name, info }; });
+const education = sp.education.map(parseEducation);
+const reviews = allReviews.filter((r) => r.specialist === sp.slug);
+const facts = [
+  { n: sp.years, label: `${ua(sp.years, 'рік', 'роки', 'років')} практики` },
+  ...(requests.length ? [{ n: requests.length, label: `${ua(requests.length, 'напрям', 'напрями', 'напрямів')} роботи` }] : []),
+  { n: sp.languages.length, label: `${ua(sp.languages.length, 'мова', 'мови', 'мов')} сесій` },
+];
+const terms = [
+  ['Конфіденційність', trustPoints[0][1]],
+  ['Скасування', 'Безкоштовно — якщо попередити щонайменше за 24 години до сесії. Деталі — на сторінці «Умови оплати та скасування».'],
+  ['Питання до запису', 'Можна спершу поставити питання — через форму або в Telegram. Це ні до чого не зобов’язує.'],
+  ...(sp.associations ? [['Професійні спільноти', sp.associations]] : []),
+];
+const numClass = (m: string) => (m.length > 2 ? 'num num--long' : 'num');
+---
+<Base title={`${sp.name} — ${sp.role.split(' · ')[0].toLowerCase()}`} description={sp.summary} sticky={false}>
+  <section class="hero on-brand">
+    <div class="container inner">
+      <div class="m-hide"><Breadcrumbs items={[{ label: 'Головна', href: '/' }, { label: 'Пошук спеціалістів', href: '/specialists' }, { label: sp.name }]} /></div>
+      <a class="back d-hide" href="/specialists"><Icon name="arrow-left" size={18} /><span>Пошук спеціалістів</span></a>
+      <div class="row">
+        <div class="portrait" id="video">
+          {sp.photo ? <img src={sp.photo} alt={`Портрет: ${sp.name}`} width="420" height="525" fetchpriority="high" /> : <span class="ph" aria-hidden="true">{initials(sp.name)}</span>}
+          {sp.video && (sp.videoUrl
+            ? <a class="vpill" href={sp.videoUrl} target="_blank" rel="noopener"><span class="play"><Icon name="play" size={14} /></span><span class="vt"><b>Відео-привітання</b></span></a>
+            : <p class="vpill"><span class="play"><Icon name="play" size={14} /></span><span class="vt"><b>Відео-привітання</b><small>незабаром</small></span></p>)}
+        </div>
+        <div class="info">
+          <div class="text">
+            {sp.nearest && <p class="avail"><span class="dot" aria-hidden="true"></span>Найближче вільне: {sp.nearest}</p>}
+            <div class="names">
+              <h1 class="t-h1 c-on-brand">{sp.name}</h1>
+              <p class="w-500 c-on-brand-accent">{sp.role}</p>
+            </div>
+            <div class="lead">
+              <p class="t-h5 c-on-brand">{intro}</p>
+              <a class="more-link" href="#about"><span>Більше про мене</span><Icon name="arrow-right" size={17} class="down" /></a>
+            </div>
+          </div>
+          <dl class="facts">{facts.map((f) => <div><dt>{f.n}</dt><dd>{f.label}</dd></div>)}</dl>
+          <div class="cta m-hide" data-hero-ctas>
+            <Button href="#book" variant="light" size="l">Записатись{when ? ` · ${when}` : ''}</Button>
+            <p><span class="w-500 c-on-brand">{priceLabel(sp)} за сесію</span>{sp.nearest && <span class="t-body-s c-on-brand-muted">Найближче вільне: {sp.nearest}</span>}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container content">
+    <aside class="side">
+      <div class="book" id="book" data-book>
+        <h2 class="t-body-l w-600">Записатись на сесію</h2>
+        <div class="options" role="radiogroup" aria-label="Тип сесії">
+          {sp.sessions.map((s, i) => (
+            <label class="opt">
+              <input type="radio" class="sr-only" name="session" value={i} checked={i === firstIndex} data-href={bookHref(i)} />
+              <span class="radio" aria-hidden="true"></span>
+              <span class="ot"><b>{s.type}{s.first ? ' сесія' : ''}</b>{s.first && <small>Перша зустріч — щоб розібратись у запиті</small>}</span>
+              <span class="op"><b>{uah(toUAH(s))}</b><small>{s.minutes} хв</small></span>
+            </label>
+          ))}
+        </div>
+        <dl class="details">
+          <div><dt>Формат</dt><dd>{formats}</dd></div>
+          {address && <div><dt>Адреса</dt><dd>{address}</dd></div>}
+          <div><dt>Мова</dt><dd>{sp.languages.join(' · ')}</dd></div>
+        </dl>
+        {sp.slots?.length ? (
+          <div class="slots-block">
+            <p class="t-body-s w-500">Найближчі вільні години</p>
+            <p class="t-body-s c-tertiary">Час — за Києвом. Онлайн-клієнтам покажемо у вашому часовому поясі.</p>
+            <ul class="slots">{sp.slots.slice(0, 3).map((s, i) => <li class:list={{ on: i === 0 }}><span>{s.day}</span><b>{s.time}</b></li>)}</ul>
+          </div>
+        ) : (
+          <p class="t-body-s c-tertiary next">{sp.nearest ? <><span class="dot" aria-hidden="true"></span>Найближче вільне: {sp.nearest}. </> : ''}Точний час оберете на наступному кроці.</p>
+        )}
+        <div class="actions">
+          <a class="primary" href={bookHref(firstIndex)} data-book-link>Записатись на сесію{when && <span> · {when}</span>}</a>
+          <p class="cancel t-body-s c-secondary"><Icon name="calendar" size={16} /><span>Безкоштовне скасування — за 24 год до сесії</span></p>
+          <Button href={askHref} variant="outline" block>Спершу поставити питання</Button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <section class="block" id="about">
+        <h2 class="t-h2">Про мене</h2>
+        <div class="bio" data-bio>
+          {about.map((p, i) => <p class:list={['t-body-l', { 'c-tertiary': i > 0 }]}>{p}</p>)}
+        </div>
+        <button type="button" class="read" data-bio-more hidden aria-expanded="false"><span>Читати повністю</span><Icon name="arrow-right" size={17} class="down" /></button>
+      </section>
+
+      {requests.length > 0 && (
+        <section class="block">
+          <div class="head"><h2 class="t-h2">З чим можна прийти</h2><p class="c-tertiary">Точна назва не потрібна. Достатньо впізнати себе.</p></div>
+          <ul class="pills">{requests.map((d) => <li><a href={`/directions/${d!.slug}`}>{d!.title}</a></li>)}</ul>
+        </section>
+      )}
+
+      {notWith.length > 0 && (
+        <section class="block">
+          <div class="head"><h2 class="t-h2">З чим не працюю</h2><p class="c-tertiary">Ваш запит тут? <a class="u" href={settings.telegram} target="_blank" rel="noopener">Напишіть нам</a> — допоможемо знайти фахівця, який з цим працює.</p></div>
+          <ul class="pills">{notWith.map((t) => <li><span>{t}</span></li>)}</ul>
+        </section>
+      )}
+
+      <section class="block">
+        <div class="head"><h2 class="t-h2">Як я працюю</h2><p class="c-tertiary">Який підхід підійде саме вам — вирішуємо разом на першій зустрічі.</p></div>
+        <ul class="methods">
+          {methods.map((m) => (
+            <li>
+              <p class="short t-h5 w-600">{m.info?.short ?? ''}</p>
+              <div><p class="t-body-l w-500">{m.name}</p>{m.info && <p class="c-secondary">{m.info.text}</p>}</div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="block">
+        <div class="head"><h2 class="t-h2">Перша сесія: що буде</h2><p class="c-tertiary">Знайомство без зобов’язань: продовжувати чи ні — вирішуєте ви.</p></div>
+        <div class="first">
+          <div class="dur on-brand">
+            <p><span class={numClass(first.minutes)}>{first.minutes}</span><span class="c-on-brand-accent">хвилин</span></p>
+            <p><span class="t-h5 w-600 c-on-brand">{uah(toUAH(first))}</span><span class="t-body-s c-on-brand-muted">без зобов’язань</span></p>
+          </div>
+          <dl class="phases">
+            <div><dt>До</dt><dd>Обираєте час у календарі й оплачуєте. Приходить лист із посиланням на відеозустріч{sp.offline ? ' або адресою кабінету' : ''}.</dd></div>
+            <div><dt>Під час</dt><dd>Говоримо про те, що привело. Можна не знати, з чого почати, — з цим теж працюємо.</dd></div>
+            <div><dt>Після</dt><dd>Домовляємось, як рухатись далі. Продовжувати чи ні — вирішуєте ви.</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="block">
+        <div class="head"><h2 class="t-h2">Освіта та сертифікати</h2><p class="c-tertiary">Освіту й кваліфікацію кожного фахівця перевіряє центр.</p></div>
+        <ul class="edu">
+          {education.map((e) => (
+            <li>
+              <p class="year w-600 c-brand">{e.year}</p>
+              <div><p class="w-500">{e.title}</p>{e.org && <p class="t-body-s c-tertiary">{e.org}</p>}</div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {reviews.length > 0 && (
+        <section class="block">
+          <div class="head"><h2 class="t-h2">Відгуки клієнтів</h2><p class="c-tertiary">Залишаються лише після завершених сесій.</p></div>
+          <div class="reviews m-scroll" style="--m-card:300px">
+            {reviews.map((r, i) => (
+              <figure class:list={['review', { 'review--brand on-brand': i % 2 === 1 }]}>
+                <ul class="tags">{r.tags.map((t) => <li>{t}</li>)}</ul>
+                <blockquote class="t-h5">«{r.quote}»</blockquote>
+                <figcaption class="t-caption">Відгук після завершених сесій</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section class="block block--last">
+        <h2 class="t-h2">Умови</h2>
+        <dl class="terms">{terms.map(([t, d]) => <div><dt>{t}</dt><dd>{d}</dd></div>)}</dl>
+      </section>
+
+      <CrisisStrip class="d-hide" />
+    </div>
+  </div>
+
+  <CTAPrefooterSpecialist sp={sp} formats={formats} bookHref={bookHref(firstIndex)} askHref={askHref} />
+
+  <div class="bar" data-book-bar aria-hidden="true">
+    <p><b>{uah(toUAH(first))} · {first.minutes} хв</b>{sp.nearest && <span>Найближче: {sp.nearest}</span>}</p>
+    <Button href="#book" size="l" tabindex="-1">Записатись</Button>
+  </div>
+</Base>
+
+<style>
+  .hero{background:var(--bg-brand);border-radius:0 0 var(--radius-2xl) var(--radius-2xl)}
+  .inner{display:flex;flex-direction:column;gap:var(--space-48);padding-block:var(--space-32) var(--space-96)}
+  .row{display:flex;gap:var(--space-80);align-items:center}
+  .portrait{position:relative;width:420px;aspect-ratio:4/5;flex:none;border-radius:var(--radius-xl);overflow:hidden;background:var(--bg-brand-hover);display:flex;align-items:flex-end;padding:var(--space-16)}
+  .portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .ph{position:absolute;inset:0;display:grid;place-items:center;font-size:96px;font-weight:600;letter-spacing:-.03em;color:var(--text-on-brand-muted)}
+  .vpill{position:relative;display:inline-flex;align-items:center;gap:var(--space-12);padding:var(--space-8) var(--space-16) var(--space-8) var(--space-8);border-radius:var(--radius-full);background:var(--bg-brand)}
+  .play{width:36px;height:36px;border-radius:50%;background:var(--bg-on-brand-surface);color:var(--text-brand);display:grid;place-items:center}
+  .play :global(svg){fill:currentColor;margin-left:2px}
+  .vt{display:flex;flex-direction:column}
+  .vt b{font-size:14px;line-height:20px;font-weight:500;color:var(--text-on-brand)}
+  .vt small{font-size:12px;line-height:16px;color:var(--text-on-brand-secondary)}
+  .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-48)}
+  .text{display:flex;flex-direction:column;gap:var(--space-24);align-items:flex-start}
+  .avail{display:inline-flex;align-items:center;gap:var(--space-8);padding:var(--space-8) var(--space-16) var(--space-8) var(--space-12);border-radius:var(--radius-full);background:var(--bg-brand-hover);font-size:14px;line-height:20px;font-weight:500;color:var(--text-on-brand)}
+  .dot{width:8px;height:8px;flex:none;border-radius:50%;background:var(--status-available)}
+  .names{display:flex;flex-direction:column;gap:var(--space-12)}
+  .names p,.lead{max-width:560px}
+  .lead{display:flex;flex-direction:column;gap:var(--space-12);align-items:flex-start}
+  .more-link{display:inline-flex;align-items:center;gap:6px;font-weight:500;color:var(--text-on-brand-accent)}
+  .more-link:hover span{text-decoration:underline;text-underline-offset:3px}
+  :global(.down){transform:rotate(90deg)}
+  .facts{display:flex;gap:var(--space-40);margin:0;flex-wrap:wrap}
+  .facts div{display:flex;flex-direction:column;gap:var(--space-2)}
+  .facts dt{font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.03em;color:var(--text-on-brand)}
+  .facts dd{margin:0;font-size:14px;line-height:20px;color:var(--text-on-brand-muted)}
+  .cta{display:flex;align-items:center;gap:var(--space-24);flex-wrap:wrap}
+  .cta p{display:flex;flex-direction:column;gap:var(--space-2)}
+  .back{display:none}
+
+  .content{display:grid;grid-template-columns:minmax(0,776px) 384px;justify-content:space-between;gap:var(--space-40);align-items:start;padding-block:var(--space-64) var(--space-120)}
+  .main{grid-column:1;grid-row:1;min-width:0}
+  .side{grid-column:2;grid-row:1;position:sticky;top:var(--space-24)}
+
+  /* Картка запису */
+  .book{background:var(--bg-surface);border-radius:var(--radius-xl);padding:var(--space-24);display:flex;flex-direction:column;gap:var(--space-20);scroll-margin-top:var(--space-24)}
+  .options{display:flex;flex-direction:column;gap:var(--space-8);margin-top:calc(-1 * var(--space-4))}
+  .opt{display:flex;gap:var(--space-12);align-items:flex-start;padding:var(--space-16);border-radius:var(--radius-lg);background:var(--bg-page);border:1.5px solid transparent;cursor:pointer}
+  .opt:has(:checked){background:var(--bg-panel);border-color:var(--border-brand);border-radius:var(--radius-xl)}
+  .opt:has(:focus-visible){outline:2px solid var(--border-brand);outline-offset:2px}
+  .radio{width:18px;height:18px;flex:none;margin-top:3px;border-radius:50%;background:var(--bg-surface);border:1.5px solid var(--border-strong);display:grid;place-items:center}
+  .opt:has(:checked) .radio{border-color:var(--border-brand)}
+  .opt:has(:checked) .radio::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--bg-brand)}
+  .ot{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-2)}
+  .op{flex:none;display:flex;flex-direction:column;align-items:flex-end;white-space:nowrap}
+  .opt b{font-weight:500}
+  .opt small{font-size:14px;line-height:20px;color:var(--text-tertiary)}
+  .details{margin:0}
+  .details div{display:flex;justify-content:space-between;gap:var(--space-16);padding-block:var(--space-12);border-top:1px solid var(--border-default);font-size:14px;line-height:20px}
+  .details dt{color:var(--text-tertiary)}
+  .details dd{margin:0;font-weight:500;text-align:right}
+  .next{margin-top:calc(-1 * var(--space-8))}
+  .next .dot{display:inline-block;margin-right:var(--space-8)}
+  .slots-block{display:flex;flex-direction:column;gap:var(--space-8)}
+  .slots{display:flex;gap:var(--space-8);margin-top:var(--space-4)}
+  .slots li{flex:1;display:flex;flex-direction:column;align-items:center;padding-block:var(--space-8);border-radius:var(--radius-lg);background:var(--bg-page)}
+  .slots span{font-size:12px;line-height:16px;color:var(--text-tertiary)}
+  .slots b{font-weight:600}
+  .slots .on{background:var(--bg-brand)}
+  .slots .on span{color:var(--text-on-brand-accent)}.slots .on b{color:var(--text-on-brand)}
+  .actions{display:flex;flex-direction:column;gap:var(--space-8)}
+  .primary{min-height:56px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 6px;padding:var(--space-8) var(--space-20);border-radius:var(--radius-full);background:var(--bg-brand);color:var(--text-on-brand);font-weight:500;text-align:center;transition:background-color .15s}
+  .primary:hover{background:var(--bg-brand-hover)}
+  .primary span{font-weight:400;color:var(--text-on-brand-accent)}
+  .cancel{display:flex;align-items:center;justify-content:center;gap:var(--space-8);padding-block:var(--space-2)}
+
+  /* Основна колонка */
+  .block{padding-bottom:var(--space-88);display:flex;flex-direction:column;gap:var(--space-28);scroll-margin-top:var(--space-24)}
+  .block--last{padding-bottom:0;gap:var(--space-20)}
+  .block > .t-h2,.head .t-h2{color:var(--text-primary)}
+  .head{display:flex;flex-direction:column;gap:var(--space-8)}
+  .u{text-decoration:underline;text-underline-offset:3px}
+  .bio{display:flex;flex-direction:column;gap:var(--space-16);max-width:600px;position:relative}
+  .bio:global(.is-clamped){max-height:240px;overflow:hidden}
+  .bio:global(.is-clamped)::after{content:'';position:absolute;left:0;right:0;bottom:0;height:96px;background:linear-gradient(rgb(242 241 234 / 0),var(--bg-page))}
+  .read{align-self:flex-start;height:44px;display:inline-flex;align-items:center;gap:var(--space-8);padding-inline:var(--space-20);border-radius:var(--radius-full);background:var(--bg-muted);font-weight:500;margin-top:calc(-1 * var(--space-16))}
+  .read[hidden]{display:none}
+  .read:hover{background:var(--bg-panel)}
+  .read[aria-expanded='true'] :global(.down){transform:rotate(-90deg)}
+  .pills{display:flex;flex-wrap:wrap;gap:var(--space-8)}
+  .pills a,.pills span{min-height:40px;display:inline-flex;align-items:center;padding:var(--space-8) var(--space-16);border-radius:var(--radius-full);background:var(--bg-muted);color:var(--text-primary)}
+  .pills a:hover{background:var(--bg-panel)}
+  .methods li{display:flex;gap:var(--space-24);padding-block:var(--space-20)}
+  .methods li + li{border-top:1px solid var(--border-default)}
+  .methods li:first-child{padding-top:0}
+  .short{width:136px;flex:none;overflow-wrap:anywhere}
+  .methods div{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-4)}
+  .first{display:flex;background:var(--bg-panel);border-radius:var(--radius-2xl);overflow:hidden}
+  .dur{width:200px;flex:none;background:var(--bg-brand);padding:var(--space-28);display:flex;flex-direction:column;justify-content:space-between;gap:var(--space-24)}
+  .dur p{display:flex;flex-direction:column}
+  .num{font-size:72px;line-height:76px;font-weight:600;letter-spacing:-.03em;color:var(--text-on-brand)}
+  .num--long{font-size:40px;line-height:48px}
+  .phases{flex:1;min-width:0;margin:0;padding:var(--space-20) var(--space-28)}
+  .phases div{display:flex;gap:var(--space-20);padding-block:var(--space-16)}
+  .phases div + div{border-top:1px solid var(--sage-200)}
+  .phases dt{width:72px;flex:none;font-weight:600}
+  .phases dd{margin:0;flex:1;color:var(--text-secondary)}
+  .edu li{display:flex;gap:var(--space-24);align-items:center;padding-block:var(--space-20);border-top:1px solid var(--border-default)}
+  .edu li:last-child{border-bottom:1px solid var(--border-default)}
+  .year{width:96px;flex:none}
+  .edu div{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-2)}
+  .reviews{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-24)}
+  .review{margin:0;background:var(--bg-muted);border-radius:var(--radius-xl);padding:var(--space-28) var(--space-28) var(--space-24);display:flex;flex-direction:column;gap:var(--space-20)}
+  .review--brand{background:var(--bg-brand)}
+  .tags{display:flex;flex-wrap:wrap;gap:var(--space-8)}
+  .tags li{padding:4px 12px;border-radius:var(--radius-full);background:var(--bg-surface);font-size:12px;line-height:16px;font-weight:500}
+  .review--brand .tags li{background:var(--bg-brand-hover);color:var(--text-on-brand)}
+  .review blockquote{margin:0;flex:1;color:var(--text-brand)}
+  .review--brand blockquote{color:var(--text-on-brand)}
+  .review figcaption{padding-top:var(--space-32);color:var(--text-tertiary)}
+  .review--brand figcaption{color:var(--text-on-brand-muted)}
+  .terms{margin:0}
+  .terms div{display:flex;gap:var(--space-32);padding-block:var(--space-20)}
+  .terms div + div{border-top:1px solid var(--border-default)}
+  .terms dt{width:200px;flex:none;font-weight:600}
+  .terms dd{margin:0;flex:1;color:var(--text-secondary)}
+  .bar{display:none}
+
+  @media (max-width:1279px){
+    .row{gap:var(--space-48)}
+    .portrait{width:340px}
+    .content{grid-template-columns:minmax(0,1fr) 360px}
+  }
+  @media (max-width:1023px){
+    .inner{padding-bottom:var(--space-48);gap:var(--space-32)}
+    .row{flex-direction:column;align-items:stretch;gap:var(--space-24)}
+    .portrait{width:100%;max-width:420px}
+    .info{gap:var(--space-32)}
+    .content{display:flex;flex-direction:column;align-items:stretch;gap:var(--space-48);padding-block:var(--space-32) var(--space-64)}
+    .side{position:static}
+    .block{padding-bottom:var(--space-64)}
+    .block--last{padding-bottom:0}
+  }
+  @media (max-width:767px){
+    .inner{gap:var(--space-12);padding-block:var(--space-8) var(--space-32)}
+    .back{display:inline-flex;align-items:center;gap:var(--space-8);height:40px;font-size:14px;line-height:20px;font-weight:500;color:var(--text-on-brand-accent);align-self:flex-start}
+    .row{gap:var(--space-20)}
+    .portrait{max-width:none;aspect-ratio:7/8}
+    .ph{font-size:72px}
+    .info{gap:var(--space-20)}
+    .text{gap:var(--space-20)}
+    .names{gap:var(--space-8)}
+    .lead .t-h5{font-size:16px;line-height:24px}
+    .facts{gap:var(--space-24);padding-top:var(--space-20);border-top:1px solid var(--border-on-brand-strong)}
+    .facts div{flex:1}
+    .facts dt{font-size:28px;line-height:36px}
+    .content{gap:var(--space-40);padding-block:var(--space-24) var(--space-40)}
+    .book{padding:var(--space-20);scroll-margin-top:var(--space-12)}
+    .block{padding-bottom:var(--space-40);gap:var(--space-16)}
+    .block--last{padding-bottom:var(--space-40)}
+    .bio:global(.is-clamped){max-height:192px}
+    .read{margin-top:calc(-1 * var(--space-4));height:40px;font-size:14px}
+    .pills a,.pills span{font-size:14px;line-height:20px}
+    .methods li{flex-direction:column;gap:var(--space-4);padding-block:var(--space-16)}
+    .short{width:auto;font-size:14px;line-height:20px;color:var(--text-brand-muted)}
+    .short:empty{display:none}
+    .first{flex-direction:column}
+    .dur{width:auto;flex-direction:row;align-items:flex-end;padding:var(--space-20)}
+    .dur p:last-child{align-items:flex-end;text-align:right}
+    .num{font-size:40px;line-height:48px}
+    .phases{padding:var(--space-4) var(--space-20)}
+    .phases div{flex-direction:column;gap:var(--space-4)}
+    .phases dt{width:auto}
+    .edu li{gap:var(--space-16);align-items:flex-start;padding-block:var(--space-16)}
+    .year{width:76px;font-size:14px;line-height:24px}
+    .reviews{gap:var(--space-12)}
+    .review{padding:var(--space-20)}
+    .terms div{flex-direction:column;gap:var(--space-4);padding-block:var(--space-16)}
+    .terms dt{width:auto}
+    .bar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-16);position:fixed;left:0;right:0;bottom:0;z-index:50;padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:var(--bg-surface);border-top:1px solid var(--border-subtle);box-shadow:0 -4px 16px rgb(18 45 34 / .08);transform:translateY(110%);transition:transform .2s ease-out}
+    .bar:global(.is-visible){transform:none}
+    .bar p{display:flex;flex-direction:column;min-width:0}
+    .bar b{font-weight:600}
+    .bar p span{font-size:14px;line-height:20px;color:var(--text-secondary)}
+  }
+</style>
+
+<script>
+  // Вибір типу сесії → посилання кнопки запису
+  const book = document.querySelector<HTMLElement>('[data-book]');
+  const link = book?.querySelector<HTMLAnchorElement>('[data-book-link]');
+  book?.addEventListener('change', (e) => { const t = e.target as HTMLInputElement; if (t.name === 'session' && link) link.href = t.dataset.href!; });
+  const checked = book?.querySelector<HTMLInputElement>('input[name=session]:checked');
+  if (checked && link) link.href = checked.dataset.href!;
+
+  // «Про мене»: довгий текст згортаємо, кнопка розгортає
+  const bio = document.querySelector<HTMLElement>('[data-bio]');
+  const more = document.querySelector<HTMLButtonElement>('[data-bio-more]');
+  if (bio && more && bio.scrollHeight > 300) {
+    bio.classList.add('is-clamped'); more.hidden = false;
+    more.addEventListener('click', () => {
+      const open = bio.classList.toggle('is-clamped') === false;
+      more.setAttribute('aria-expanded', String(open));
+      more.querySelector('span')!.textContent = open ? 'Згорнути' : 'Читати повністю';
+    });
+  }
+
+  // Мобільна прилипла панель запису: ховається, коли видно картку запису або футер
+  const bar = document.querySelector<HTMLElement>('[data-book-bar]');
+  if (bar && book) {
+    const seen = new Map<Element, boolean>();
+    const sync = () => { const v = ![...seen.values()].some(Boolean); bar.classList.toggle('is-visible', v); bar.setAttribute('aria-hidden', String(!v)); bar.querySelector('a')?.setAttribute('tabindex', v ? '0' : '-1'); };
+    const io = new IntersectionObserver((es) => { es.forEach((e) => seen.set(e.target, e.isIntersecting)); sync(); });
+    [book, document.querySelector('footer'), document.querySelector('.pre')].forEach((el) => el && io.observe(el));
+  }
+</script>

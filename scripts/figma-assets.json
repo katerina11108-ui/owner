@@ -1,0 +1,26 @@
+{
+  "fileKey": "iXA7iPYAZTxwknERWwIkWH",
+  "nodes": [
+    {
+      "id": "366:506",
+      "file": "logo.svg",
+      "format": "svg",
+      "note": "Brand/Logo — марка манула"
+    }
+  ],
+  "images": {
+    "c98d32cb933a355537a8fde2b5f80361bdda7682": "hero-session.jpg",
+    "1f13b0be4a0ed06ae49e062b58c46a7044af64b4": "psychiatrist-team.jpg",
+    "830f6a21bf3b10b05a0a21fafca9c8693df0bd9d": "session-wide.jpg",
+    "a42c67cb8f92a1141cbbef1e16edc5df05285ab6": "founder-levchenko.jpg",
+    "9c9112cb69551f56307445fd136c8d355657dfd6": "office-1.jpg",
+    "6d11fdb68b32b23e58a8ac5b8316ab8e3cd014a1": "office-2.jpg",
+    "6fb13cb68fb360b234a8796068a641048b8c8d44": "office-3.jpg",
+    "c0d6021af682ad5d83128d251304c45c4e9d4965": "video-thumb-2.jpg",
+    "b855abc3992a9c02e1607788f4592d9ca808aa2c": "team.jpg",
+    "9bf7ddd18063e104da64bdbe7ef834bdb41e2ad2": "article-cover.jpg",
+    "b96ee29c14fa98f4b1d808cef28f20966dda285c": "demo-portrait-1.jpg",
+    "cc444a374e0bc5d92af7103dc8b49507cedb88e8": "demo-portrait-2.jpg",
+    "50fbaca744c0fbb57f038baf37f36e661037d2bf": "founder-voronkov.jpg"
+  }
+}

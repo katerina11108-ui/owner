@@ -1,0 +1,75 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { settings } from '../data/site';
+const help = [['Знайти спеціаліста','/specialists'],['Напрями','/directions'],['Підбір за 5 питань','/quiz'],['Консультація психіатра','/directions/psychiatric-consultation']];
+const center = [['Про нас','/about'],['Подкаст','/events#podcast'],['Лекції та практики','/events#materials'],['Блог','/blog'],['Для спеціалістів','/about#join']];
+const L = settings.license;
+---
+<footer class="footer on-brand">
+  <div class="container">
+    <div class="cols">
+      <div class="brand">
+        <Logo size={56} sub />
+        <p class="about">{settings.footerAbout}</p>
+        <div class="social">
+          <a href={settings.instagram} aria-label="Instagram" target="_blank" rel="noopener"><Icon name="instagram" size={20} /></a>
+          <a href={settings.youtube} aria-label="YouTube" target="_blank" rel="noopener"><Icon name="youtube" size={20} /></a>
+          <a href={settings.telegram} aria-label="Telegram" target="_blank" rel="noopener"><Icon name="telegram" size={20} /></a>
+        </div>
+      </div>
+      <nav class="col" aria-label="Допомога"><p class="h">Допомога</p>{help.map(([l,h]) => <a href={h}>{l}</a>)}</nav>
+      <nav class="col" aria-label="Центр"><p class="h">Центр</p>{center.map(([l,h]) => <a href={h}>{l}</a>)}</nav>
+      <div class="col"><p class="h">Контакти</p>
+        <a href={settings.telegram} class="tg" target="_blank" rel="noopener"><Icon name="telegram" size={18} /><span>Написати в Telegram</span></a>
+        <a href={`mailto:${settings.email}`}>{settings.email}</a>
+      </div>
+    </div>
+    <div class="crisis">
+      <div class="crisis-text"><p class="t">Якщо зараз дуже важко</p><p class="d">Терапія — не екстрена допомога. Зателефонуйте просто зараз, це безкоштовно і цілодобово.</p></div>
+      <div class="phones">{settings.crisis.map((c) => <a class="phone" href={`tel:${c.phone}`}><b>{c.phone}</b><span>{c.label}</span></a>)}</div>
+    </div>
+    <div class="legal">
+      <div class="links">
+        <a href={L.registry} target="_blank" rel="noopener">Ліцензія МОЗ {L.number} від {L.date}</a>
+        <a href="/privacy">Політика конфіденційності</a>
+        <a href="/personal-data">Обробка персональних даних</a>
+        <a href="/terms">Умови оплати та скасування</a>
+      </div>
+      <p>© 2026 Neoiatria</p>
+    </div>
+  </div>
+</footer>
+<style>
+  .footer{background:var(--green-950);color:var(--text-on-brand);padding-top:var(--space-88)}
+  .cols{display:flex;gap:var(--space-48)}
+  .brand{width:380px;flex:none;display:flex;flex-direction:column;gap:var(--space-20)}
+  .about{color:var(--text-on-brand-secondary)}
+  .social{display:flex;gap:10px}
+  .social a{width:40px;height:40px;border:1px solid var(--border-on-brand-strong);border-radius:50%;display:grid;place-items:center;transition:border-color .15s}
+  .social a:hover{border-color:var(--text-on-brand-muted)}
+  .col{flex:1;display:flex;flex-direction:column;gap:14px}
+  .h{font-size:14px;line-height:20px;font-weight:500;color:var(--bg-accent-on-brand)}
+  .col a:hover{text-decoration:underline;text-underline-offset:3px}
+  .tg{display:inline-flex;align-items:center;gap:var(--space-8)}
+  .crisis{margin-top:var(--space-64);background:var(--bg-brand-hover);border-radius:var(--radius-xl);padding:18px var(--space-24);display:flex;gap:var(--space-24);align-items:center}
+  .crisis-text{flex:1;display:flex;flex-direction:column;gap:2px}
+  .t{font-weight:500}
+  .d,.phone span{font-size:14px;line-height:20px;color:var(--text-on-brand-muted)}
+  .phones{display:flex;gap:var(--space-24)}
+  .phone{display:inline-flex;align-items:center;gap:var(--space-8);padding:10px var(--space-16);border:1px solid var(--border-on-brand-strong);border-radius:var(--radius-full)}
+  .phone b{font-weight:500}
+  .legal{margin-top:var(--space-64);border-top:1px solid var(--border-on-brand-strong);padding-block:var(--space-24);display:flex;justify-content:space-between;align-items:center;gap:var(--space-24);font-size:14px;line-height:20px;color:var(--text-on-brand-muted)}
+  .links{display:flex;gap:var(--space-24);flex-wrap:wrap}
+  .links a:hover{color:var(--text-on-brand)}
+  @media (max-width:1023px){
+    .footer{padding-top:var(--space-48)}
+    .cols{flex-wrap:wrap;gap:var(--space-32) var(--space-24)}
+    .brand{width:100%}
+    .col{flex:1 1 40%}
+    .crisis{flex-direction:column;align-items:flex-start;margin-top:var(--space-40)}
+    .phones{flex-wrap:wrap;gap:var(--space-12)}
+    .legal{flex-direction:column;align-items:flex-start;margin-top:var(--space-40)}
+    .links{flex-direction:column;gap:var(--space-8)}
+  }
+</style>

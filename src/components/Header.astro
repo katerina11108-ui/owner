@@ -1,0 +1,37 @@
+---
+import Logo from './Logo.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { nav } from '../data/site';
+const path = Astro.url.pathname;
+---
+<header class="header on-brand">
+  <div class="container inner">
+    <span class="desk-logo"><Logo size={62} /></span>
+    <span class="mob-logo"><Logo size={36} /></span>
+    <nav aria-label="Основна навігація">
+      <ul class="nav">
+        {nav.map((i) => <li><a href={i.href} aria-current={path.startsWith(i.href) ? 'page' : undefined}>{i.label}</a></li>)}
+      </ul>
+    </nav>
+    <span class="cta"><Button href="/specialists" variant="light" size="s" class="header-btn">Знайти спеціаліста</Button></span>
+    <button class="menu-btn" aria-label="Відкрити меню" aria-expanded="false" aria-controls="mobile-menu" data-menu-open><Icon name="menu" size={24} /></button>
+  </div>
+</header>
+<style>
+  .header{background:var(--bg-brand);color:var(--text-on-brand)}
+  .inner{display:flex;align-items:center;justify-content:space-between;height:80px}
+  .nav{display:flex;gap:var(--space-32)}
+  .nav a{color:var(--text-on-brand-secondary);transition:color .15s}
+  .nav a:hover,.nav a[aria-current]{color:var(--text-on-brand)}
+  .cta :global(.header-btn){height:44px;padding-inline:var(--space-20);font-size:16px;line-height:24px}
+  .mob-logo,.menu-btn{display:none}
+  .menu-btn{width:44px;height:44px;align-items:center;justify-content:center;color:var(--text-on-brand)}
+  @media (max-width:1023px){
+    .inner{height:68px}
+    nav,.cta,.desk-logo{display:none}
+    .mob-logo{display:block}
+    .menu-btn{display:inline-flex}
+    .mob-logo :global(.name){font-size:16px;line-height:24px}
+  }
+</style>

@@ -1,0 +1,28 @@
+---
+// Crisis Strip: екстрені номери. Показується під результатами пошуку й у профілі (мобільний).
+import { settings } from '../data/site';
+interface Props { class?: string }
+const { class: cls } = Astro.props;
+---
+<aside class:list={['strip', cls]} aria-label="Екстрена допомога">
+  <div class="tx">
+    <p class="w-600">Якщо зараз дуже важко</p>
+    <p class="t-body-s c-secondary">Терапія — не екстрена допомога. Можна подзвонити просто зараз.</p>
+  </div>
+  <div class="calls">
+    {settings.crisis.map((c, i) => <a class:list={['call', { 'call--primary': i === 0 }]} href={`tel:${c.phone}`}>{c.phone}{i === 0 && ` · ${c.label}`}</a>)}
+  </div>
+</aside>
+<style>
+  .strip{display:flex;gap:var(--space-24);align-items:center;background:var(--bg-muted);border-radius:var(--radius-xl);padding:var(--space-20) var(--space-20) var(--space-20) var(--space-24)}
+  .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-2)}
+  .calls{display:flex;gap:var(--space-8);flex:none}
+  .call{height:44px;display:inline-flex;align-items:center;padding-inline:var(--space-16);border-radius:var(--radius-full);background:var(--bg-page);color:var(--text-primary);font-size:14px;line-height:20px;font-weight:500;white-space:nowrap}
+  .call--primary{background:var(--bg-brand);color:var(--text-on-brand)}
+  .call--primary:hover{background:var(--bg-brand-hover)}
+  @media (max-width:767px){
+    .strip{flex-direction:column;align-items:stretch;gap:var(--space-16);padding:var(--space-20)}
+    .calls{flex-wrap:wrap}
+    .call{flex:1;justify-content:center}
+  }
+</style>

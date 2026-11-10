@@ -1,0 +1,72 @@
+---
+import Icon from '../Icon.astro';
+import Button from '../Button.astro';
+import { roles } from '../../data/content';
+const opts = ['Тривога', 'Вигорання', 'Стосунки', 'Сон', 'Втрата', 'Не можу назвати'];
+---
+<section class="section">
+  <div class="container">
+    <div class="panel">
+      <div class="section-head">
+        <h2 class="t-h2 c-brand">Хто мені потрібен?</h2>
+        <p class="t-body-l c-secondary">Більшість людей не знає, до кого йти, — і це нормально. Коротко про різницю:</p>
+      </div>
+      <div class="roles m-scroll">
+        {roles.map((r) => (
+          <article class="role">
+            <span class="tile"><Icon name={r.icon} size={24} /></span>
+            <h3 class="t-h4 w-600 c-brand">{r.title}</h3>
+            <p class="c-secondary">{r.text}</p>
+            <p class="often"><span class="t-caption c-tertiary">Часто приходять з:</span><b class="t-body-s">{r.often}</b></p>
+          </article>
+        ))}
+      </div>
+      <div class="quiz on-brand">
+        <div class="qt">
+          <h3 class="t-h4 w-600 c-on-brand">Не знаю — допоможіть підібрати</h3>
+          <p class="c-on-brand-2">5 простих питань: запит, формат, мова, бюджет, для кого. Покажемо кількох фахівців, які можуть підійти.</p>
+          <span class="m-hide"><Button href="/quiz" variant="light">Підібрати за 5 питань</Button></span>
+        </div>
+        <form class="step" action="/quiz" method="get">
+          <div class="progress"><span class="t-caption c-tertiary">Крок 1 з 5</span><span class="bars" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i></span></div>
+          <fieldset><legend class="t-h5 w-600 c-brand">Що вас турбує найбільше?</legend>
+            <div class="opts">{opts.map((o, i) => <label class="opt"><input type="radio" name="concern" value={o} checked={i === 0} onchange="this.form.submit()" /><span>{o}</span></label>)}</div>
+          </fieldset>
+        </form>
+        <span class="d-hide"><Button href="/quiz" variant="light" size="l" block>Підібрати за 5 питань</Button></span>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .panel{background:var(--bg-panel);border-radius:var(--radius-2xl);padding:var(--space-48) var(--space-44, 44px)}
+  .section-head{margin-bottom:var(--space-40)}
+  .roles{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-20)}
+  .role{background:var(--bg-surface);border-radius:var(--radius-xl);padding:var(--space-24);display:flex;flex-direction:column;gap:var(--space-12)}
+  .tile{width:48px;height:48px;border-radius:var(--radius-lg);background:var(--bg-panel);display:grid;place-items:center;color:var(--icon-brand);margin-bottom:var(--space-12)}
+  .often{margin-top:auto;padding-top:var(--space-12);display:flex;flex-direction:column;gap:var(--space-4)}
+  .often b{font-weight:600;color:var(--text-primary)}
+  .quiz{margin-top:var(--space-40);background:var(--bg-brand);border-radius:var(--radius-xl);padding:var(--space-32) var(--space-32) var(--space-32) var(--space-40);display:flex;justify-content:space-between;align-items:center;gap:var(--space-40)}
+  .qt{max-width:560px;display:flex;flex-direction:column;gap:var(--space-12);align-items:flex-start}
+  .qt :global(.btn){margin-top:var(--space-8)}
+  .step{width:400px;flex:none;background:var(--bg-surface);border-radius:var(--radius-xl);padding:var(--space-20);display:flex;flex-direction:column;gap:var(--space-16)}
+  .progress{display:flex;justify-content:space-between;align-items:center}
+  .bars{display:flex;gap:4px}.bars i{width:22px;height:3px;border-radius:2px;background:var(--border-subtle)}.bars i.on{background:var(--bg-brand)}
+  fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--space-16)}
+  legend{padding:0;margin-bottom:var(--space-16)}
+  .opts{display:flex;flex-wrap:wrap;gap:var(--space-8)}
+  .opt input{position:absolute;opacity:0;pointer-events:none}
+  .opt span{display:inline-block;padding:8px 14px;border-radius:var(--radius-full);background:var(--bg-muted);color:var(--text-brand);font-size:14px;line-height:20px;font-weight:500;cursor:pointer}
+  .opt input:checked + span{background:var(--bg-brand);color:var(--text-on-brand)}
+  .opt input:focus-visible + span{outline:2px solid var(--border-brand);outline-offset:2px}
+  @media (max-width:1023px){
+    .panel{padding:0;background:none}
+    .section-head{margin-bottom:var(--space-16)}
+    .quiz{margin-top:var(--space-16)}
+    .role{--m-card:280px}
+    .roles{grid-template-columns:1fr}
+    .quiz{flex-direction:column;align-items:stretch;padding:var(--space-24) var(--space-20)}
+    .qt :global(.btn){width:100%}
+    .step{width:auto}
+  }
+</style>

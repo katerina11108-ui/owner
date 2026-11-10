@@ -1,0 +1,33 @@
+---
+import Button from './Button.astro';
+---
+<aside class="banner on-brand">
+  <div class="photo"><img src="/images/psychiatrist-team.jpg" alt="Фахівчині центру під час робочої зустрічі" width="520" height="360" loading="lazy" /></div>
+  <div class="content">
+    <div class="top">
+      <h3 class="t-h2 c-on-brand">Коли потрібна не лише розмова</h3>
+      <p class="t-body-l c-on-brand-2">Психіатрична консультація: діагностика і, якщо треба, ліки. Психіатр і психотерапевт — в одній команді, тож не доведеться шукати лікаря окремо.</p>
+    </div>
+    <div class="actions">
+      <Button href="/directions/psychiatric-consultation#book" variant="inverse">Записатись до психіатра</Button>
+      <a class="how" href="/directions/psychiatric-consultation#first-visit">Як проходить перша консультація</a>
+    </div>
+  </div>
+</aside>
+<style>
+  .banner{display:flex;background:var(--bg-brand);border-radius:var(--radius-2xl);overflow:hidden;min-height:360px}
+  .photo{width:520px;flex:none;position:relative;background:var(--bg-brand-hover)}
+  .photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .content{flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:var(--space-32);padding:var(--space-48) var(--space-56)}
+  .top{display:flex;flex-direction:column;gap:var(--space-16)}
+  .actions{display:flex;gap:var(--space-28);align-items:center;flex-wrap:wrap}
+  .actions :global(.btn--inverse){background:var(--bg-on-brand-surface)}
+  .how{font-weight:500;color:var(--text-on-brand);text-decoration:underline;text-underline-offset:3px}
+  @media (max-width:1023px){
+    .banner{flex-direction:column}
+    .photo{width:100%;height:220px}
+    .content{padding:var(--space-24) var(--space-20)}
+    .actions{flex-direction:column;align-items:stretch;gap:var(--space-16)}
+    .how{text-align:center}
+  }
+</style>

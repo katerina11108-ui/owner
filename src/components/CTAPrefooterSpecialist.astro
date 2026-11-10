@@ -1,0 +1,68 @@
+---
+// CTA/Pre-footer Specialist: ліва колонка — фахівець, заголовок, факти; права — картка запису.
+// Динамічні поля: портрет, імʼя, роль, ціна першої сесії, формати, слоти (Altegio). Заголовок і «Без зобовʼязань» — статичні.
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { type Specialist, firstSession, toUAH, initials } from '../data/specialists';
+import { uah } from '../data/site';
+interface Props { sp: Specialist; formats: string; bookHref: string; askHref: string }
+const { sp, formats, bookHref, askHref } = Astro.props;
+const first = firstSession(sp);
+const when = sp.slots?.[0] ? `${sp.slots[0].day}, ${sp.slots[0].time}` : sp.nearest;
+---
+<section class="pre on-brand">
+  <div class="container inner">
+    <div class="intro">
+      <div class="who">
+        <span class="ava">{sp.photo ? <img src={sp.photo} alt="" width="64" height="64" loading="lazy" /> : <span aria-hidden="true">{initials(sp.name)}</span>}</span>
+        <p><span class="t-h5 w-500 c-on-brand">{sp.name}</span><span class="t-body-s c-on-brand-muted">{sp.role.split(' · ')[0]}</span></p>
+      </div>
+      <h2 class="t-h2 c-on-brand">Перша зустріч — {first.minutes} хвилин розмови без поспіху</h2>
+      <ul class="facts">
+        <li>{first.first ? 'Перша сесія' : first.type} · {uah(toUAH(first))}</li>
+        <li>{formats}</li>
+        <li>Без зобов’язань продовжувати</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="head">
+        <p class="w-500 c-on-brand">{sp.slots?.length ? 'Найближчі вільні години' : 'Запис на сесію'}</p>
+        {sp.nearest && <p class="live t-body-s c-on-brand-muted"><span class="dot" aria-hidden="true"></span>найближче: {sp.nearest}</p>}
+      </div>
+      {sp.slots?.length && (
+        <ul class="slots">{sp.slots.slice(0, 3).map((s, i) => <li class:list={{ on: i === 0 }}><span>{s.day}</span><b>{s.time}</b></li>)}</ul>
+      )}
+      <Button href={bookHref} variant="light" size="l" block>Записатись{when ? ` · ${when}` : ''}</Button>
+      <p class="note t-body-s c-on-brand-muted"><Icon name="calendar" size={16} /><span>Безкоштовне скасування — за 24 год до сесії</span></p>
+      <Button href={askHref} variant="outline-on-brand" size="l" block>Спершу поставити питання</Button>
+    </div>
+  </div>
+</section>
+<style>
+  .pre{background:var(--bg-brand);border-bottom:1px solid var(--border-on-brand-strong)}
+  .inner{display:flex;gap:var(--space-80);align-items:center;padding-block:var(--space-80)}
+  .intro{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-28)}
+  .who{display:flex;align-items:center;gap:var(--space-16)}
+  .who p{display:flex;flex-direction:column;gap:var(--space-2)}
+  .ava{width:64px;height:64px;flex:none;border-radius:50%;overflow:hidden;background:var(--bg-brand-hover);display:grid;place-items:center;color:var(--text-on-brand-accent);font-size:20px;font-weight:600}
+  .ava img{width:100%;height:100%;object-fit:cover}
+  .facts{display:flex;flex-wrap:wrap;gap:var(--space-8)}
+  .facts li{padding:6px 14px;border-radius:var(--radius-full);background:var(--bg-brand-hover);font-size:14px;line-height:20px;font-weight:500;color:var(--text-on-brand-muted)}
+  .card{width:440px;flex:none;background:var(--bg-brand-hover);border-radius:var(--radius-xl);padding:var(--space-28);display:flex;flex-direction:column;gap:var(--space-20)}
+  .head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-12);flex-wrap:wrap}
+  .live{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--status-available)}
+  .slots{display:flex;gap:var(--space-8)}
+  .slots li{flex:1;display:flex;flex-direction:column;align-items:center;gap:var(--space-2);padding-block:var(--space-12);border-radius:var(--radius-lg);border:1px solid var(--border-on-brand-strong)}
+  .slots span{font-size:12px;line-height:16px;color:var(--text-on-brand-muted)}
+  .slots b{font-size:20px;line-height:28px;font-weight:500;letter-spacing:-.01em;color:var(--text-on-brand)}
+  .slots .on{background:var(--bg-accent-on-brand);border-color:transparent}
+  .slots .on span,.slots .on b{color:var(--text-brand)}
+  .note{display:flex;align-items:center;justify-content:center;gap:var(--space-8);text-align:center}
+  .card :global(.btn--outline-on-brand){background:var(--bg-brand)}
+  .card :global(.btn){white-space:normal;text-align:center}
+  @media (max-width:1023px){
+    .inner{flex-direction:column;align-items:stretch;gap:var(--space-32);padding-block:var(--space-48)}
+    .card{width:auto;padding:var(--space-20)}
+  }
+</style>

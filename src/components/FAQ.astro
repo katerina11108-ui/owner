@@ -1,0 +1,46 @@
+---
+import Icon from './Icon.astro';
+import { faq as defaultFaq } from '../data/content';
+interface Props { items?: string[][]; title?: string }
+const { items = defaultFaq, title = 'Що зазвичай питають' } = Astro.props;
+---
+<section class="section">
+  <div class="container inner">
+    <div class="side">
+      <h2 class="t-h2 c-brand">{title}</h2>
+      <div class="crisis">
+        <p class="t-body-l w-600 c-brand">Якщо зараз дуже погано</p>
+        <p class="c-secondary">Терапія не замінює екстрену допомогу. Якщо є думки нашкодити собі, телефонуйте одразу: <a href="tel:7333">7333</a> (Lifeline Ukraine) або <a href="tel:112">112</a>.</p>
+      </div>
+    </div>
+    <div class="list">
+      {items.map(([q, a], i) => (
+        <details class="item" open={i === 0}>
+          <summary><span class="t-h5 w-500">{q}</span><span class="pm" aria-hidden="true"><span class="i-plus"><Icon name="plus" size={24} /></span><span class="i-minus"><Icon name="minus" size={24} /></span></span></summary>
+          <p class="c-secondary">{a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+<style>
+  .inner{display:flex;gap:var(--space-80);align-items:flex-start}
+  .side{width:380px;flex:none;display:flex;flex-direction:column;gap:var(--space-24)}
+  .crisis{background:var(--bg-crisis);border-radius:var(--radius-xl);padding:var(--space-20) var(--space-24);display:flex;flex-direction:column;gap:var(--space-8)}
+  .crisis a{font-weight:600;color:var(--text-brand);text-decoration:underline}
+  .list{flex:1;display:flex;flex-direction:column;gap:var(--space-8)}
+  .item{background:var(--bg-surface);border-radius:var(--radius-xl);padding:var(--space-20) var(--space-24)}
+  summary{display:flex;gap:var(--space-24);align-items:center;cursor:pointer;list-style:none;color:var(--text-brand)}
+  summary::-webkit-details-marker{display:none}
+  summary > span:first-child{flex:1}
+  .pm{display:grid}
+  .i-minus{display:none}
+  .item[open] .i-minus{display:block}.item[open] .i-plus{display:none}
+  .item p{margin-top:var(--space-12);max-width:600px}
+  @media (max-width:1023px){
+    .inner{flex-direction:column;gap:var(--space-24)}
+    .side{width:auto}
+    .item{padding:var(--space-16) var(--space-20)}
+    summary :global(.t-h5){font-size:16px;line-height:24px}
+  }
+</style>

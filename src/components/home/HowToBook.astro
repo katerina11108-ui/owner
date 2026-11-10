@@ -1,0 +1,121 @@
+---
+import Button from '../Button.astro';
+import Icon from '../Icon.astro';
+// Ілюстративні міні-інтерфейси (демо-стани), не інтерактивні: aria-hidden.
+---
+<section class="section">
+  <div class="container">
+    <div class="head">
+      <h2 class="t-h2 c-brand">Записатися — простіше, ніж здається</h2>
+      <p class="t-body-l c-secondary">Без реєстрації і листування. Від вибору фахівця до підтвердження — кілька хвилин.</p>
+    </div>
+    <div class="bento">
+      <div class="tile tile--choose">
+        <div class="tt"><h3 class="t-h3 c-brand">Обираєте фахівця</h3><p class="t-body-l c-secondary">Підхід, досвід і ціна видно одразу — без дзвінків «уточнити».</p></div>
+        <div class="ui ui-choose" aria-hidden="true">
+          <div class="chips"><span class="chip on">Тривога</span><span class="chip">Онлайн</span><span class="chip">до 2 000 ₴</span></div>
+          <div class="deck"><span class="d3"></span><span class="d2"></span>
+            <div class="mini"><span class="ava"></span><span class="mt"><b>Марія Луковська</b><span>ТА · 9 років</span></span><b class="pr">2 000 ₴</b></div>
+          </div>
+          <p class="note">ще 8 фахівців працюють з тривогою</p>
+        </div>
+      </div>
+      <div class="tile tile--slots on-brand">
+        <div class="tt"><h3 class="t-h3 c-on-brand">Бачите вільні години</h3><p class="t-body-l c-on-brand-muted">Обираєте час у календарі фахівця — без «коли вам зручно?».</p></div>
+        <div class="ui ui-slots" aria-hidden="true">
+          <div class="week">
+            {[['Пн','13',''],['Вт','14','off'],['Ср','15',''],['Чт','16','sel'],['Пт','17','']].map(([d,n,s]) => <span class:list={['day', s]}><span>{d}</span><b>{n}</b></span>)}
+          </div>
+          <div class="cal"><p>Четвер, 16 жовтня</p><div class="times">{['10:00','12:30','16:00','18:00','19:30'].map((t) => <span class:list={['time', { on: t === '16:00' }]}>{t}</span>)}</div></div>
+        </div>
+      </div>
+      <div class="tile tile--confirm">
+        <div class="photo">
+          <img src="/images/session-wide.jpg" alt="" width="580" height="400" loading="lazy" />
+          <div class="ui ui-confirm" aria-hidden="true">
+            <span class="behind"></span>
+            <div class="conf"><p class="ok"><span class="tick"><Icon name="check" size={12} /></span><b>Запис підтверджено</b></p><p class="c-secondary">Чт, 16:00 · 50 хв · 2 000 ₴</p><p class="c-tertiary">Посилання на зустріч — у листі</p></div>
+            <div class="event"><span class="acc"></span><span><b>Сесія · Марія Луковська</b><span>Чт 16:00–16:50 · додано в календар</span></span></div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="tt"><h3 class="t-h3 c-brand">Платите за одну сесію</h3><p class="t-body-l c-secondary">Без пакетів і передоплат на місяць. Підтвердження приходить одразу.</p></div>
+          <dl class="after">
+            {[['Одразу','Лист із підтвердженням: фахівець, дата, ціна.'],['За 24 год','Нагадування про сесію.'],['Онлайн','Посилання на зустріч — у тому ж листі.'],['Офлайн','Адреса офісу і як знайти вхід.']].map(([k,v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
+          </dl>
+        </div>
+      </div>
+      <div class="notfit on-brand">
+        <div class="nt"><h3 class="t-h4 w-600 c-on-brand">Фахівець не підійшов? Це нормально.</h3><p class="c-on-brand-2">Не кожен контакт складається з першої сесії. Напишіть нам — допоможемо знайти іншого фахівця, без пояснень і незручності.</p></div>
+        <Button href="/ask" variant="light">Написати команді</Button>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--space-32);margin-bottom:var(--space-48)}
+  .head h2{max-width:640px}.head p{max-width:380px}
+  .bento{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-20)}
+  .tile{border-radius:var(--radius-2xl);overflow:hidden}
+  .tt{display:flex;flex-direction:column;gap:var(--space-8)}
+  .tile--choose,.tile--slots{min-height:560px;padding:var(--space-40) var(--space-40) 0;display:flex;flex-direction:column;justify-content:space-between;gap:var(--space-24)}
+  .tile--choose{background:var(--bg-panel)}
+  .tile--slots{background:var(--bg-brand)}
+  .ui{align-self:center;width:100%;max-width:440px}
+  @media (min-width:1024px){.ui-choose,.ui-slots{zoom:1.4}.ui-confirm{zoom:1.3}}
+  /* Choose */
+  .ui-choose{padding-bottom:var(--space-32);display:flex;flex-direction:column;gap:var(--space-28)}
+  .chips{display:flex;gap:6px}
+  .chip{padding:4px 10px;border-radius:var(--radius-full);background:var(--bg-surface);color:var(--text-secondary);font-size:14px;line-height:20px;font-weight:500}
+  .chip.on{background:var(--bg-brand);color:var(--text-on-brand)}
+  .deck{position:relative;padding-bottom:20px}
+  .deck .d2,.deck .d3{position:absolute;left:4%;right:4%;height:80px;bottom:10px;background:var(--bg-surface);border-radius:var(--radius-xl);opacity:.7}
+  .deck .d3{left:8%;right:8%;bottom:0;opacity:.45}
+  .mini{position:relative;display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg-surface);border-radius:var(--radius-xl);box-shadow:0 6px 9px rgb(18 46 33 / .08)}
+  .ava{width:44px;height:44px;border-radius:50%;background:var(--bg-placeholder)}
+  .mt{flex:1;display:flex;flex-direction:column}.mt b{color:var(--text-brand);font-weight:600}.mt span{font-size:14px;line-height:20px;color:var(--text-tertiary)}
+  .pr{color:var(--text-brand);font-weight:500}
+  .note{font-size:14px;line-height:20px;color:var(--text-secondary)}
+  /* Slots */
+  .ui-slots{display:flex;flex-direction:column;align-items:center;gap:10px;padding-bottom:var(--space-48)}
+  .week{display:flex;gap:6px}
+  .day{width:46px;padding:5px 0;border-radius:var(--radius-lg);background:var(--bg-surface);display:flex;flex-direction:column;align-items:center;font-size:12px;line-height:16px;color:var(--text-tertiary)}
+  .day b{font-size:14px;line-height:20px;font-weight:500;color:var(--text-brand)}
+  .day.off{background:none;border:1px dashed var(--border-on-brand-strong);opacity:.5}.day.off b{color:var(--text-on-brand-muted)}
+  .day.sel{background:var(--bg-accent-on-brand);color:var(--text-brand)}
+  .cal{width:260px;background:var(--bg-surface);border-radius:var(--radius-xl);padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 6px 9px rgb(18 46 33 / .08)}
+  .cal p{font-size:14px;line-height:20px;font-weight:500;color:var(--text-tertiary)}
+  .times{display:flex;flex-wrap:wrap;gap:8px}
+  .time{padding:8px 12px;border-radius:var(--radius-full);background:var(--bg-muted);color:var(--text-brand);font-size:14px;line-height:20px;font-weight:500}
+  .time.on{background:var(--bg-brand);color:var(--text-on-brand-accent)}
+  /* Confirm */
+  .tile--confirm{grid-column:1/-1;background:var(--bg-surface);display:flex;min-height:400px}
+  .photo{width:580px;flex:none;position:relative;overflow:hidden}
+  .photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .ui-confirm{position:absolute;left:30%;top:36%;width:300px}
+  .behind{position:absolute;left:12px;top:-12px;width:200px;height:34px;border-radius:var(--radius-lg);background:var(--bg-surface);opacity:.55}
+  .conf{position:relative;background:var(--bg-surface);border-radius:var(--radius-xl);padding:14px;display:flex;flex-direction:column;gap:6px;width:228px;font-size:12px;line-height:17px;box-shadow:0 5px 8px rgb(18 46 33 / .08)}
+  .ok{display:flex;align-items:center;gap:7px}.ok b{font-size:14px;line-height:20px;font-weight:600;color:var(--text-brand)}
+  .tick{width:21px;height:21px;border-radius:50%;background:var(--bg-brand);color:var(--text-on-brand);display:grid;place-items:center}
+  .event{position:absolute;left:44px;top:86px;display:flex;gap:9px;padding:9px 12px 9px 9px;background:var(--bg-surface);border-radius:var(--radius-lg);box-shadow:0 -9px 9px rgb(18 46 33 / .12);font-size:11px;line-height:14px}
+  .event > span:last-child{display:flex;flex-direction:column}.event b{font-weight:500;color:var(--text-brand)}.event span span{color:var(--text-tertiary)}
+  .acc{width:4px;align-self:stretch;border-radius:var(--radius-sm);background:var(--bg-brand)}
+  .content{flex:1;padding:var(--space-40) var(--space-48);display:flex;flex-direction:column;gap:var(--space-24)}
+  .after div{display:flex;gap:var(--space-16);padding-block:var(--space-12);border-top:1px solid var(--border-subtle);font-size:14px;line-height:20px}
+  .after div:first-child{border-top:0}
+  .after dt{width:150px;flex:none;font-weight:600;color:var(--text-brand)}
+  .after dd{margin:0;color:var(--text-secondary)}
+  .notfit{grid-column:1/-1;background:var(--bg-brand);border-radius:var(--radius-xl);padding:var(--space-28) var(--space-32);display:flex;justify-content:space-between;align-items:center;gap:var(--space-32)}
+  .nt{max-width:560px;display:flex;flex-direction:column;gap:var(--space-8)}
+  @media (max-width:1023px){
+    .head{flex-direction:column;align-items:flex-start;gap:var(--space-12);margin-bottom:var(--space-24)}
+    .bento{grid-template-columns:1fr}
+    .tile--choose,.tile--slots{min-height:0;padding:var(--space-24) var(--space-20) 0}
+    .tile--confirm{flex-direction:column}
+    .photo{width:100%;height:280px}
+    .ui-confirm{left:12%;top:24%}
+    .content{padding:var(--space-24) var(--space-20)}
+    .after dt{width:96px}
+    .notfit{flex-direction:column;align-items:stretch;padding:var(--space-24) var(--space-20)}
+  }
+</style>

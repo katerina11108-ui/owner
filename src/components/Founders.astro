@@ -1,0 +1,50 @@
+---
+interface Props { variant?: 'section' | 'plain' }
+---
+<section class="founders on-brand">
+  <div class="container inner">
+    <div class="photos">
+      <figure class="f">
+        <div class="ph ph--tall"><img class="crop-ev" src="/images/founder-voronkov.jpg" alt="Фото: Євгеній Воронков" loading="lazy" /></div>
+        <figcaption><b>Євгеній Воронков</b><span>Психіатр, психотерапевт</span></figcaption>
+      </figure>
+      <figure class="f">
+        <div class="ph"><img class="crop-va" src="/images/founder-levchenko.jpg" alt="Фото: Василіса Левченко" loading="lazy" /></div>
+        <figcaption><b>Василіса Левченко</b><span>Виконавча директорка</span></figcaption>
+      </figure>
+    </div>
+    <div class="text">
+      <h2 class="t-h2 c-on-brand">Хто відповідає за те, до кого ви потрапите</h2>
+      <p class="t-body-l c-on-brand-2">Центр заснували Євгеній Воронков і Василіса Левченко. Євгеній — психіатр і психотерапевт, працює в психодинамічному та клінічному підходах, супервізор і веде навчальні програми для фахівців. Понад 45 років клінічного досвіду. Василіса — виконавча директорка: тримає центр у лапах, щоб ви потрапили до свого фахівця.</p>
+      <p class="t-body-l c-on-brand-2">Кожен у команді пройшов їхній особистий відбір — не лише за дипломом, а й за тим, як працює з людьми.</p>
+      <div class="vetting">
+        <p class="t-h5 w-600 c-on-brand-accent">Беремо кожного восьмого кандидата.</p>
+        <p class="c-on-brand-2">Перевіряємо диплом і сертифікати, досвід від 2 років і пробну сесію з куратором. Далі — регулярна супервізія.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .founders{background:var(--bg-brand);margin-top:var(--section-gap)}
+  .inner{display:flex;gap:var(--space-80);align-items:center;padding-block:var(--space-120)}
+  .photos{display:flex;gap:var(--space-16);align-items:flex-end;flex:none}
+  .f{display:flex;flex-direction:column;gap:var(--space-12);width:250px}
+  .ph{position:relative;height:320px;border-radius:var(--radius-xl);overflow:hidden;background:var(--bg-brand-hover)}
+  .ph--tall{height:380px}
+  .ph img{position:absolute;max-width:none}
+  /* Кадрування як у Figma */
+  .crop-ev{width:221.35%;height:194.16%;left:-63.51%;top:-19.42%}
+  .crop-va{width:99.91%;height:124.27%;left:.07%;top:-8.02%}
+  figcaption{display:flex;flex-direction:column;gap:var(--space-12)}
+  figcaption b{font-weight:500;color:var(--text-on-brand)}
+  figcaption span{font-size:14px;line-height:20px;color:var(--text-on-brand-muted)}
+  .text{flex:1;display:flex;flex-direction:column;gap:var(--space-24)}
+  .vetting{background:var(--bg-brand-hover);border-radius:var(--radius-xl);padding:var(--space-20) var(--space-24);display:flex;flex-direction:column;gap:var(--space-8)}
+  @media (max-width:1023px){
+    .inner{flex-direction:column;align-items:stretch;gap:var(--space-32);padding-block:var(--space-48)}
+    .photos{gap:12px;align-items:flex-start}
+    .f{width:auto;flex:1;gap:var(--space-8)}
+    .ph,.ph--tall{height:auto;aspect-ratio:250/320}
+    figcaption{gap:2px}
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+import Button from '../Button.astro';
+import Icon from '../Icon.astro';
+import { objections } from '../../data/content';
+---
+<section class="section">
+  <div class="container">
+    <div class="panel on-brand">
+      <div class="head">
+        <p class="t-body-s w-600 c-on-brand-accent">Знайомі думки?</p>
+        <h2 class="t-h2 c-on-brand">Що зазвичай зупиняє</h2>
+        <p class="t-body-l c-on-brand-2">Через ці думки запис відкладають місяцями. Ось що на них відповідаємо.</p>
+        <div class="cta"><Button href="/quiz" variant="light" size="l">Підібрати за 5 питань</Button></div>
+      </div>
+      <ol class="chat" data-chat>
+        {objections.map(([q, a], i) => (
+          <li class:list={['ex', { 'ex--more': i >= 3 }]}>
+            <p class="thought">{q}</p>
+            <div class="answer-row">
+              <p class="answer">{a}</p>
+              <span class="avatar" aria-hidden="true"><img src="/images/logo.svg" alt="" width="32" height="32" /></span>
+            </div>
+          </li>
+        ))}
+        <li class="more-li"><button class="more" type="button" aria-expanded="false" data-chat-more><span>Ще 2 думки</span><Icon name="chevron-down" size={16} /></button></li>
+      </ol>
+      <div class="cta-mobile"><Button href="/quiz" variant="light" size="l" block>Підібрати за 5 питань</Button></div>
+    </div>
+  </div>
+</section>
+<style>
+  .panel{background:var(--bg-brand);border-radius:var(--radius-2xl);padding:var(--space-48) var(--space-56);display:flex;gap:var(--space-56);align-items:flex-start}
+  .head{width:380px;flex:none;display:flex;flex-direction:column;gap:var(--space-20)}
+  .cta{padding-top:var(--space-8)}
+  .chat{flex:1;display:flex;flex-direction:column;gap:var(--space-16)}
+  .ex{display:flex;flex-direction:column;gap:var(--space-4)}
+  .thought{align-self:flex-start;max-width:480px;background:var(--bg-brand-hover);border:1px solid var(--border-on-brand-strong);border-radius:16px 16px 16px 4px;padding:var(--space-12) var(--space-16);font-size:18px;line-height:28px;font-weight:500;color:var(--text-on-brand)}
+  .answer-row{display:flex;justify-content:flex-end;align-items:flex-end;gap:10px}
+  .answer{max-width:590px;background:var(--bg-surface);border-radius:16px 16px 4px 16px;padding:var(--space-12) var(--space-16);color:var(--text-primary)}
+  .avatar{flex:none;width:32px;height:32px;border-radius:50%;overflow:hidden;background:var(--bg-panel);border:1px solid var(--border-on-brand-strong)}
+  .more-li{display:none}
+  .cta-mobile{display:none}
+  .more{display:inline-flex;align-items:center;gap:4px;font-size:14px;line-height:20px;font-weight:500;color:var(--text-on-brand-accent);text-decoration:underline;text-underline-offset:3px}
+  .more[aria-expanded='true'] :global(svg){transform:rotate(180deg)}
+  @media (max-width:1023px){
+    .panel{flex-direction:column;padding:var(--space-28) var(--space-20);gap:var(--space-28);border-radius:var(--radius-xl)}
+    .head{width:auto;gap:var(--space-12)}
+    .head :global(.t-h2){font-size:28px;line-height:36px}
+    .cta{order:9}
+    .chat{gap:14px;width:100%}
+    .thought{font-size:16px;line-height:24px;max-width:270px}
+    .answer{font-size:14px;line-height:20px;max-width:250px}
+    .avatar{width:24px;height:24px}
+    .chat:not(.is-open) .ex--more{display:none}
+    .more-li{display:block}
+    .head .cta{display:none}
+    .cta-mobile{display:block;width:100%}
+  }
+</style>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-chat]').forEach((chat) => {
+    const btn = chat.querySelector<HTMLButtonElement>('[data-chat-more]');
+    btn?.addEventListener('click', () => {
+      const open = chat.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(open));
+      btn.querySelector('span')!.textContent = open ? 'Згорнути' : 'Ще 2 думки';
+    });
+  });
+</script>

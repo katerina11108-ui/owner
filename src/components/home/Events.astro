@@ -1,0 +1,26 @@
+---
+import EventCard from '../EventCard.astro';
+import Button from '../Button.astro';
+import { events } from '../../data/content';
+---
+<section class="section">
+  <div class="container">
+    <div class="head">
+      <div class="section-head"><h2 class="t-h2 c-primary">Більше від команди</h2><p class="t-body-l c-secondary">Терапевтичні групи, подкаст і лекції від фахівців центру.</p></div>
+      <Button href="/events" variant="outline" class="all">Усі події</Button>
+    </div>
+    <nav class="tabs" aria-label="Розділи матеріалів">
+      <a href="/events" aria-current="true">Події</a><a href="/events#podcast">Подкаст</a><a href="/events#materials">Лекції та практики</a>
+    </nav>
+    <div class="grid m-scroll" style="--m-card:300px">{events.map((e) => <EventCard e={e} />)}</div>
+  </div>
+</section>
+<style>
+  .head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--space-24)}
+  .head :global(.all){color:var(--text-primary)}
+  .tabs{display:flex;gap:var(--space-8);margin-bottom:var(--space-48);flex-wrap:wrap}
+  .tabs a{height:40px;display:inline-flex;align-items:center;padding-inline:var(--space-16);border-radius:var(--radius-full);background:var(--bg-muted);font-size:14px;line-height:20px;font-weight:500;color:var(--text-primary)}
+  .tabs a[aria-current]{background:var(--bg-brand);color:var(--text-on-brand)}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-24)}
+  @media (max-width:1023px){.head{flex-direction:column;align-items:flex-start}.head .section-head{margin-bottom:0}.head :global(.all){display:none}.tabs{margin-block:var(--space-24)}.grid{grid-template-columns:1fr;gap:var(--space-16)}}
+</style>

@@ -1,0 +1,69 @@
+---
+import Icon from './Icon.astro';
+import Button from './Button.astro';
+import { type Specialist, priceLabel, initials } from '../data/specialists';
+import { ua } from '../data/site';
+interface Props { sp: Specialist; showQuote?: boolean }
+const { sp, showQuote = true } = Astro.props;
+const minutes = sp.sessions[0].minutes;
+const yrs = `${sp.years} ${ua(sp.years, 'рік', 'роки', 'років')} практики`;
+---
+<article class="card">
+  <div class="top">
+    <div class="head">
+      <div class="avatar">{sp.photo ? <img src={sp.photo} alt={`Фото: ${sp.name}`} width="88" height="88" loading="lazy" /> : <span aria-hidden="true">{initials(sp.name)}</span>}</div>
+      <div class="who">
+        <h3 class="name"><a href={`/specialists/${sp.slug}`}>{sp.name}</a></h3>
+        <p class="t-body-s c-secondary">{yrs}</p>
+        <p class="t-body-s w-500 c-brand">{sp.role}</p>
+      </div>
+      {sp.video && <a class="video" href={`/specialists/${sp.slug}#video`} aria-label={`Відео-привітання: ${sp.name}`}><Icon name="play" size={12} /><span>Відео</span></a>}
+    </div>
+    {showQuote && sp.quote && <p class="quote c-secondary">{sp.quote}</p>}
+    <ul class="tags">{sp.card.slice(0, 3).map((t) => <li>{t}</li>)}</ul>
+    <ul class="details">
+      <li><Icon name="online" size={16} /><span>{sp.online && sp.offline ? 'Онлайн і офлайн' : sp.offline ? 'Офлайн' : 'Онлайн'}</span></li>
+      <li><Icon name="language" size={16} /><span>{sp.languages.join(', ')}</span></li>
+      <li><Icon name="users" size={16} /><span>{sp.types.join(', ')}</span></li>
+    </ul>
+  </div>
+  <div class="bottom">
+    <div class="price-line">
+      <p><b class="price">{priceLabel(sp)}</b> <span class="t-body-s c-tertiary">/ {minutes} хв</span></p>
+      {sp.nearest && <p class="nearest"><span class="dot" aria-hidden="true"></span>Найближче: {sp.nearest}</p>}
+    </div>
+    <div class="actions">
+      <Button href={`/specialists/${sp.slug}#book`} size="s" class="grow">Обрати час</Button>
+      <a class="profile" href={`/specialists/${sp.slug}`}>Профіль</a>
+    </div>
+  </div>
+</article>
+<style>
+  .card{background:var(--bg-surface);border-radius:var(--radius-xl);padding:var(--space-20);display:flex;flex-direction:column;justify-content:space-between;gap:var(--space-20);height:100%}
+  .top{display:flex;flex-direction:column;gap:var(--space-16)}
+  .head{display:flex;gap:var(--space-16);align-items:flex-start}
+  .avatar{width:88px;height:88px;flex:none;border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-placeholder);display:grid;place-items:center;color:var(--text-brand);font-size:28px;font-weight:600}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .who{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-2)}
+  .name{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-.01em;color:var(--text-brand)}
+  .name a::after{content:'';position:absolute;inset:0}
+  .card{position:relative}
+  .name a:hover{text-decoration:underline;text-underline-offset:3px}
+  .video,.profile,.actions :global(a){position:relative;z-index:1}
+  .video{flex:none;height:32px;display:inline-flex;align-items:center;gap:var(--space-8);padding:0 var(--space-12) 0 var(--space-8);border-radius:var(--radius-full);background:var(--bg-muted);color:var(--text-brand);font-size:14px;line-height:20px;font-weight:500}
+  .quote{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .tags{display:flex;flex-wrap:wrap;gap:var(--space-8)}
+  .tags li{padding:var(--space-4) var(--space-12);border-radius:var(--radius-full);background:var(--bg-panel);color:var(--text-brand);font-size:14px;line-height:20px;font-weight:500}
+  .details{display:flex;flex-direction:column;gap:var(--space-8)}
+  .details li{display:flex;gap:var(--space-8);font-size:14px;line-height:20px;font-weight:500;color:var(--text-brand)}
+  .details :global(svg){margin-top:2px;color:var(--text-brand)}
+  .bottom{display:flex;flex-direction:column;gap:var(--space-16)}
+  .price-line{display:flex;justify-content:space-between;align-items:center;gap:var(--space-12);flex-wrap:wrap}
+  .price{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-.01em;color:var(--text-brand)}
+  .nearest{display:inline-flex;align-items:center;gap:var(--space-8);font-size:12px;line-height:16px;color:var(--text-secondary)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--status-available)}
+  .actions{display:flex;gap:var(--space-8)}
+  .actions :global(.grow){flex:1}
+  .profile{height:40px;display:inline-flex;align-items:center;padding-inline:var(--space-16);border-radius:var(--radius-full);background:var(--bg-muted);color:var(--text-brand);font-size:14px;line-height:20px;font-weight:500}
+  .profile:hover{background:var(--bg-panel)}
+</style>

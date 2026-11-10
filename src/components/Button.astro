@@ -1,0 +1,32 @@
+---
+// Button: Type = primary | light | inverse | secondary | outline | outline-on-brand; Size = s | m | l
+import Icon from './Icon.astro';
+interface Props { href?: string; variant?: 'primary'|'light'|'inverse'|'secondary'|'outline'|'outline-on-brand'; size?: 's'|'m'|'l'; icon?: string; block?: boolean; type?: 'button'|'submit'; class?: string; external?: boolean; [k: string]: any }
+const { href, variant = 'primary', size = 'm', icon, block = false, type = 'button', class: cls, external = false, ...rest } = Astro.props;
+const Tag = href ? 'a' : 'button';
+const ext = external ? { target: '_blank', rel: 'noopener' } : {};
+---
+<Tag href={href} type={href ? undefined : type} class:list={['btn', `btn--${variant}`, `btn--${size}`, { 'btn--block': block }, cls]} {...ext} {...rest}>
+  <span><slot /></span>
+  {icon && <Icon name={icon} size={size === 'l' ? 20 : size === 'm' ? 18 : 16} />}
+</Tag>
+<style>
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-8);border-radius:var(--radius-full);font-weight:500;font-size:16px;line-height:24px;white-space:nowrap;border:1.5px solid transparent;transition:background-color .15s,border-color .15s}
+  .btn--s{height:40px;padding-inline:var(--space-16);font-size:14px;line-height:20px}
+  .btn--m{height:48px;padding-inline:var(--space-24)}
+  .btn--l{height:56px;padding-inline:var(--space-28)}
+  .btn--block{width:100%}
+  .btn--primary{background:var(--bg-brand);color:var(--text-on-brand)}
+  .btn--primary:hover{background:var(--bg-brand-hover)}
+  .btn--light{background:var(--bg-accent-on-brand);color:var(--text-brand)}
+  .btn--light:hover{background:var(--bg-on-brand-surface)}
+  .btn--inverse{background:var(--bg-surface);color:var(--text-brand)}
+  .btn--inverse:hover{background:var(--bg-panel)}
+  .btn--secondary{background:var(--bg-panel);color:var(--text-brand)}
+  .btn--secondary:hover{background:var(--bg-placeholder)}
+  .btn--outline{background:transparent;color:var(--text-brand);border-color:var(--border-default)}
+  .btn--outline:hover{border-color:var(--border-brand)}
+  .btn--outline-on-brand{background:transparent;color:var(--text-on-brand);border-color:var(--border-on-brand-strong)}
+  .btn--outline-on-brand:hover{border-color:var(--text-on-brand-muted)}
+  .btn[disabled]{opacity:.4;cursor:not-allowed}
+</style>

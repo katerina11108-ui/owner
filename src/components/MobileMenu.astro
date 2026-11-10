@@ -1,0 +1,62 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import Button from './Button.astro';
+import { mobileNav, settings } from '../data/site';
+---
+<div id="mobile-menu" class="menu on-brand" role="dialog" aria-modal="true" aria-label="Меню" hidden>
+  <div class="top">
+    <div class="head"><Logo size={36} /><button class="close" aria-label="Закрити меню" data-menu-close><Icon name="close" size={24} /></button></div>
+    <nav class="list" aria-label="Мобільна навігація">
+      {mobileNav.map((i) => <a class="item" href={i.href}><span>{i.label}</span><Icon name="chevron-right" size={20} /></a>)}
+      <a class="quiz" href="/quiz"><span class="qt"><b>Не знаєте, до кого звернутися?</b><span>Підібрати за 5 питань</span></span><Icon name="arrow-right" size={20} /></a>
+    </nav>
+  </div>
+  <div class="bottom">
+    <Button href="/specialists" variant="light" size="l" block>Знайти спеціаліста</Button>
+    <div class="social">
+      <a href={settings.telegram} aria-label="Telegram"><Icon name="telegram" size={24} /></a>
+      <a href={settings.instagram} aria-label="Instagram"><Icon name="instagram" size={24} /></a>
+      <a href={settings.youtube} aria-label="YouTube"><Icon name="youtube" size={24} /></a>
+    </div>
+    <p class="crisis"><Icon name="info" size={16} /><span>Якщо зараз небезпечно — <a href="tel:7333">7333</a> (Lifeline Ukraine) або <a href="tel:112">112</a></span></p>
+  </div>
+</div>
+<style>
+  .menu{position:fixed;inset:0;z-index:100;background:var(--bg-brand);color:var(--text-on-brand);display:flex;flex-direction:column;justify-content:space-between;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom)}
+  .menu[hidden]{display:none}
+  .menu:not([hidden]){animation:in .2s ease-out}
+  @keyframes in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+  .head{display:flex;justify-content:space-between;align-items:center;padding:12px 12px 12px 20px}
+  .close{width:44px;height:44px;display:grid;place-items:center;color:var(--text-on-brand)}
+  .list{display:flex;flex-direction:column;padding:16px 20px 0}
+  .item{display:flex;align-items:center;gap:12px;padding-block:16px;border-bottom:1px solid var(--border-on-brand-strong);font-size:24px;line-height:32px;font-weight:500;letter-spacing:-.01em}
+  .item span{flex:1}
+  .item :global(svg){color:var(--text-on-brand-muted)}
+  .quiz{margin-top:20px;display:flex;align-items:center;gap:12px;padding:16px;border-radius:var(--radius-xl);background:var(--bg-brand-hover)}
+  .qt{flex:1;display:flex;flex-direction:column;gap:2px}
+  .qt b{font-weight:600}
+  .qt span{font-size:14px;line-height:20px;color:var(--text-on-brand-secondary)}
+  .bottom{display:flex;flex-direction:column;gap:16px;padding:16px 20px 24px}
+  .social{display:flex;gap:20px}
+  .crisis{display:flex;gap:8px;font-size:12px;line-height:16px;color:var(--text-on-brand-muted)}
+  .crisis a{text-decoration:underline}
+  @media (min-width:1024px){.menu{display:none!important}}
+</style>
+<script>
+  const menu = document.getElementById('mobile-menu');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  const closeBtn = menu?.querySelector<HTMLButtonElement>('[data-menu-close]');
+  let last: Element | null = null;
+  const open = () => { if (!menu) return; last = document.activeElement; menu.hidden = false; document.body.style.overflow = 'hidden'; openBtn?.setAttribute('aria-expanded', 'true'); closeBtn?.focus(); };
+  const close = () => { if (!menu) return; menu.hidden = true; document.body.style.overflow = ''; openBtn?.setAttribute('aria-expanded', 'false'); (last as HTMLElement | null)?.focus(); };
+  openBtn?.addEventListener('click', open);
+  closeBtn?.addEventListener('click', close);
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
+  document.addEventListener('keydown', (e) => {
+    if (!menu || menu.hidden) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'Tab') { const f = [...menu.querySelectorAll<HTMLElement>('a,button')]; const first = f[0], lastEl = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); lastEl.focus(); } else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); first.focus(); } }
+  });
+</script>

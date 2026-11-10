@@ -1,0 +1,397 @@
+---
+// Пошук спеціалістів (/specialists). Фільтри: фахівець, запит, метод, формат, тип сесії, мова, ціна.
+// Стан фільтрів — у query-параметрах URL (?request=anxiety,trauma&format=online&max=2500&sort=price-asc).
+// Десктоп — бічна панель; мобільний — нижня шторка (Filters Sheet). Порожній результат — стан «No Results».
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import SpecialistCard from '../../components/SpecialistCard.astro';
+import CrisisStrip from '../../components/CrisisStrip.astro';
+import CTAPrefooter from '../../components/CTAPrefooter.astro';
+import Button from '../../components/Button.astro';
+import Icon from '../../components/Icon.astro';
+import { specialists, fromPrice } from '../../data/specialists';
+import { filterGroups, facets, nearestRank, priceBounds, sortOptions, requestShort } from '../../data/filters';
+import { settings, ua, uah } from '../../data/site';
+
+const items = specialists.map((sp, i) => ({ sp, i, facets: facets(sp), price: fromPrice(sp), rank: nearestRank(sp.nearest) }));
+const total = specialists.length;
+const lower = (s: string) => (/^[А-ЯІЇЄҐ][а-яіїєґ]/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
+const config = { groups: filterGroups.map((g) => ({ key: g.key, options: g.options })), bounds: priceBounds, sorts: sortOptions.map((s) => s.value), page: 6 };
+---
+<Base title="Пошук спеціалістів" description="Психологи, психотерапевти та психіатри центру Neoiatria. Фільтри за запитом, методом, форматом, мовою і ціною. Платите за кожну сесію окремо." sticky={false}>
+  <section class="hero on-brand">
+    <div class="container inner">
+      <div class="m-hide"><Breadcrumbs items={[{ label: 'Головна', href: '/' }, { label: 'Пошук спеціалістів' }]} /></div>
+      <div class="title-row">
+        <div class="title">
+          <h1 class="t-h1 c-on-brand">Знайдіть свого спеціаліста</h1>
+          <p class="t-body-l c-on-brand-accent m-hide">Психологи, психотерапевти та психіатри. Платите за кожну сесію окремо.</p>
+          <p class="c-on-brand-accent d-hide">Фільтруйте за запитом, форматом і ціною. Відкрийте профіль, щоб записатися.</p>
+        </div>
+        <label class="sentence m-hide">
+          <span class="t-h4 w-500">Мене турбує</span>
+          <span class="select select--hero">
+            <select data-hero-request aria-label="Запит">
+              <option value="">будь-що</option>
+              {filterGroups.find((g) => g.key === 'request')!.options.map((o) => <option value={o.value}>{lower(o.label)}</option>)}
+            </select>
+            <Icon name="chevron-down" size={18} />
+          </span>
+        </label>
+        <a class="quiz d-hide" href="/quiz"><span>Не знаю, кого обрати — підбір за 5 питань</span><Icon name="arrow-right" size={18} /></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container catalog" data-catalog data-config={JSON.stringify(config)}>
+    <div class="toolbar">
+      <div class="controls">
+        <button type="button" class="open-filters" data-filters-open aria-haspopup="dialog" aria-controls="filters"><Icon name="filters" size={18} /><span data-filters-label>Фільтри</span></button>
+        <span class="select select--toolbar">
+          <select data-sort aria-label="Сортування">{sortOptions.map((s) => <option value={s.value}>{s.short}</option>)}</select>
+          <Icon name="chevron-down" size={18} />
+        </span>
+      </div>
+      <div class="chips" data-chips hidden></div>
+    </div>
+
+    <div class="dim" data-filters-dim hidden></div>
+    <form class="filters" id="filters" data-filters aria-label="Фільтри" autocomplete="off">
+      <div class="handle" aria-hidden="true"><span></span></div>
+      <div class="f-head">
+        <h2>Фільтри</h2>
+        <button type="button" class="reset" data-reset>Скинути<span class="lg-hide"> все</span></button>
+      </div>
+      <div class="f-scroll">
+        {filterGroups.map((g) => (
+          <fieldset class="group" data-group={g.key}>
+            <legend>{g.title}</legend>
+            <div class="pills" data-collapsed={g.collapseAfter ? '' : undefined}>
+              {g.options.map((o, i) => (
+                <label class:list={['pill', { 'pill--extra': g.collapseAfter && i >= g.collapseAfter }]}>
+                  <input type="checkbox" class="sr-only" name={g.key} value={o.value} /><span>{o.label}</span>
+                </label>
+              ))}
+              {g.collapseAfter && g.options.length > g.collapseAfter && <button type="button" class="pill pill--more" data-expand>Ще {g.options.length - g.collapseAfter}</button>}
+            </div>
+          </fieldset>
+        ))}
+        <fieldset class="group group--price">
+          <legend class="sr-only">Ціна за сесію</legend>
+          <div class="price-head"><span class="lbl" aria-hidden="true">Ціна за сесію</span><output data-price-out>{uah(priceBounds.min).replace(' ₴', '')} – {uah(priceBounds.max)}</output></div>
+          <div class="range" data-range>
+            <span class="track"></span><span class="fill"></span>
+            <input type="range" name="min" aria-label="Ціна від, ₴" min={priceBounds.min} max={priceBounds.max} step={priceBounds.step} value={priceBounds.min} />
+            <input type="range" name="max" aria-label="Ціна до, ₴" min={priceBounds.min} max={priceBounds.max} step={priceBounds.step} value={priceBounds.max} />
+          </div>
+        </fieldset>
+      </div>
+      <div class="apply"><Button size="l" block data-filters-close><span data-apply-label>Показати {total} {ua(total)}</span></Button></div>
+    </form>
+
+    <div class="results">
+      <div class="r-head">
+        <h2 class="count" data-count aria-live="polite">{total} {ua(total, 'спеціаліст', 'спеціалісти', 'спеціалістів')}</h2>
+        <span class="select select--sort">
+          <select data-sort aria-label="Сортування">{sortOptions.map((s) => <option value={s.value}>{s.label}</option>)}</select>
+          <Icon name="chevron-down" size={16} />
+        </span>
+      </div>
+      <ul class="grid" data-grid>
+        {items.map((it) => (
+          <li data-cell data-i={it.i} data-facets={JSON.stringify(it.facets)} data-price={it.price} data-rank={it.rank} data-years={it.sp.years}>
+            <SpecialistCard sp={it.sp} />
+          </li>
+        ))}
+      </ul>
+      <div class="more" data-more-wrap hidden><Button variant="outline" size="l" block data-more>Показати ще</Button></div>
+
+      <div class="empty" data-empty hidden>
+        <span class="e-icon"><Icon name="search" size={28} /></span>
+        <h2 class="t-h4 w-600 c-brand">Таких фахівців зараз немає</h2>
+        <p class="c-secondary">Спробуйте прибрати один із фільтрів — або напишіть нам, і ми підберемо фахівця вручну.</p>
+        <div class="e-actions">
+          <Button size="l" block data-suggest>Скинути всі фільтри</Button>
+          <Button href={settings.telegram} variant="outline" size="l" block external>Написати в Telegram</Button>
+        </div>
+      </div>
+
+      <CrisisStrip class="strip-gap" />
+    </div>
+  </section>
+  <CTAPrefooter />
+</Base>
+
+<style>
+  .hero{background:var(--bg-brand);border-radius:0 0 var(--radius-2xl) var(--radius-2xl)}
+  .inner{display:flex;flex-direction:column;gap:var(--space-24);padding-block:var(--space-32) var(--space-64)}
+  .title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-32)}
+  .title{display:flex;flex-direction:column;gap:var(--space-12);max-width:760px}
+  .title p{max-width:640px}
+  .sentence{display:flex;align-items:center;gap:var(--space-12);color:var(--text-on-brand);white-space:nowrap;flex:none}
+
+  /* Select у вигляді пілюлі: рідний <select> + іконка-шеврон */
+  .select{position:relative;display:inline-flex;align-items:center;border-radius:var(--radius-full)}
+  .select select{appearance:none;-webkit-appearance:none;font:inherit;color:inherit;background:transparent;border:0;border-radius:inherit;cursor:pointer;height:100%;width:100%;max-width:100%;text-overflow:ellipsis}
+  .select :global(svg){position:absolute;pointer-events:none}
+  .select--hero{height:52px;background:var(--bg-brand-hover);color:var(--text-on-brand-accent)}
+  .select--hero select{padding:0 48px 0 var(--space-20);font-size:24px;line-height:32px;font-weight:500;letter-spacing:-.01em;field-sizing:content}
+  .select--hero select option{color:var(--text-primary);font-size:16px}
+  .select--hero :global(svg){right:var(--space-16)}
+  .select--sort{height:40px;background:var(--bg-muted);color:var(--text-primary)}
+  .select--sort select{padding:0 40px 0 var(--space-16);font-size:14px;line-height:20px;font-weight:500;field-sizing:content}
+  .select--sort :global(svg){right:var(--space-16)}
+
+  .catalog{display:grid;grid-template-columns:282px minmax(0,1fr);gap:var(--space-24);align-items:start;padding-top:var(--space-64)}
+  .toolbar,.handle,.apply,.dim{display:none}
+
+  /* Фільтри — бічна панель */
+  .filters{position:sticky;top:var(--space-24);max-height:calc(100vh - 2 * var(--space-24));overflow-y:auto;scrollbar-width:thin;display:flex;flex-direction:column}
+  .f-head{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:var(--space-16)}
+  .f-head h2{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-.01em}
+  .reset{font-size:14px;line-height:20px;font-weight:500;color:var(--text-tertiary)}
+  .reset:hover{color:var(--text-primary);text-decoration:underline;text-underline-offset:3px}
+  .group{border:0;margin:0;min-width:0;padding:var(--space-20) 0;border-top:1px solid var(--border-default);display:flex;flex-direction:column;gap:var(--space-12)}
+  .group:last-child{border-bottom:1px solid var(--border-default)}
+  legend,.lbl{padding:0;font-weight:600;float:left;width:100%}
+  .pills{display:flex;flex-wrap:wrap;gap:var(--space-8);clear:both}
+  .pill{height:40px;display:inline-flex;align-items:center;padding-inline:var(--space-16);border-radius:var(--radius-full);background:var(--bg-muted);font-size:14px;line-height:20px;color:var(--text-primary);cursor:pointer;border:1px solid transparent;transition:background-color .15s,color .15s;user-select:none}
+  .pill:hover{background:var(--bg-panel)}
+  .pill:has(:checked){background:var(--bg-brand);color:var(--text-on-brand)}
+  .pill:has(:focus-visible){outline:2px solid var(--border-brand);outline-offset:2px}
+  .pill--more{display:none}
+  .group--price{gap:var(--space-16)}
+  .price-head{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-12)}
+  .price-head .lbl{float:none;width:auto}
+  .price-head output{font-size:14px;line-height:20px;color:var(--text-secondary);white-space:nowrap;padding-top:2px}
+  .range{position:relative;height:24px;--lo:0%;--hi:100%}
+  .track,.fill{position:absolute;top:10px;height:4px;border-radius:var(--radius-sm)}
+  .track{left:0;right:0;background:var(--bg-muted)}
+  .fill{left:var(--lo);right:calc(100% - var(--hi));background:var(--bg-brand)}
+  .range input{position:absolute;inset:0;width:100%;height:24px;margin:0;appearance:none;-webkit-appearance:none;background:none;pointer-events:none}
+  .range input::-webkit-slider-runnable-track{background:none;height:24px}
+  .range input::-moz-range-track{background:none;height:24px}
+  .range input::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:24px;height:24px;border-radius:50%;background:var(--bg-surface);border:2px solid var(--border-brand);cursor:grab}
+  .range input::-moz-range-thumb{pointer-events:auto;width:20px;height:20px;border-radius:50%;background:var(--bg-surface);border:2px solid var(--border-brand);cursor:grab}
+  .range input:focus-visible{outline:none}
+  .range input:focus-visible::-webkit-slider-thumb{outline:2px solid var(--border-brand);outline-offset:2px}
+  .range input:focus-visible::-moz-range-thumb{outline:2px solid var(--border-brand);outline-offset:2px}
+
+  /* Результати */
+  .r-head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-16);padding-bottom:var(--space-4);margin-bottom:var(--space-16)}
+  .count{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-.01em}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+  .grid > li[hidden]{display:none}
+  .more{margin-top:var(--space-16)}
+  .results :global(.strip-gap){margin-top:var(--space-16)}
+  .empty{display:flex;flex-direction:column;align-items:center;gap:var(--space-16);text-align:center;max-width:390px;margin-inline:auto;padding:var(--space-56) var(--space-28)}
+  .empty[hidden],.more[hidden],.chips[hidden],.r-head[hidden]{display:none}
+  .e-icon{width:64px;height:64px;border-radius:50%;background:var(--bg-panel);display:grid;place-items:center;color:var(--text-brand)}
+  .e-actions{display:flex;flex-direction:column;gap:var(--space-8);width:100%;padding-top:var(--space-8)}
+  .e-actions :global(.btn){white-space:normal;height:auto;min-height:56px;padding-block:var(--space-8)}
+
+  @media (min-width:1024px){.lg-hide{display:none}}
+
+  /* Планшет і мобільний: панель інструментів + фільтри в нижній шторці */
+  @media (max-width:1023px){
+    .catalog{display:block;padding-top:0}
+    .toolbar{display:flex;flex-direction:column;gap:var(--space-12);position:sticky;top:0;z-index:20;background:var(--bg-page);border-bottom:1px solid var(--border-subtle);margin-inline:calc(-1 * var(--gutter));padding:var(--space-16) var(--gutter) var(--space-12)}
+    .controls{display:flex;gap:var(--space-8)}
+    .open-filters{flex:1;min-width:0;height:48px;display:inline-flex;align-items:center;justify-content:center;gap:var(--space-8);border-radius:var(--radius-full);background:var(--bg-brand);color:var(--text-on-brand);font-weight:500}
+    .select--toolbar{flex:1;min-width:0;height:48px;background:var(--bg-surface);border:1px solid var(--border-default);color:var(--text-primary)}
+    .select--toolbar select{padding:0 36px 0 var(--space-12);font-weight:500;text-align:center;text-align-last:center;text-overflow:clip}
+    .select--toolbar :global(svg){right:var(--space-16)}
+    .chips{display:flex;gap:var(--space-8);align-items:center;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1 * var(--gutter));padding-inline:var(--gutter)}
+    .chips::-webkit-scrollbar{display:none}
+    .chips :global(.chip){flex:none;display:inline-flex;align-items:center;gap:6px;padding:9px 10px 9px 14px;border-radius:var(--radius-full);background:var(--bg-surface);border:1px solid var(--border-default);font-size:14px;line-height:20px;font-weight:500;color:var(--text-primary)}
+    .chips :global(.chip svg){width:16px;height:16px}
+    .chips :global(.chip-reset){flex:none;font-size:14px;line-height:20px;font-weight:500;color:var(--text-brand);text-decoration:underline;text-underline-offset:3px;padding-right:var(--space-4)}
+    .select--sort{display:none}
+    .r-head{padding:var(--space-16) 0 0;margin-bottom:var(--space-12)}
+    .count{font-size:14px;line-height:20px;font-weight:400;letter-spacing:0;color:var(--text-secondary)}
+
+    .dim{display:block;position:fixed;inset:0;z-index:60;background:rgb(18 31 23 / .45)}
+    .dim[hidden]{display:none}
+    .filters{position:fixed;z-index:61;left:0;right:0;bottom:0;top:80px;max-height:none;overflow:hidden;background:var(--bg-surface);border-radius:24px 24px 0 0;padding-top:10px;transform:translateY(100%);visibility:hidden;transition:transform .25s ease-out,visibility 0s .25s}
+    .filters.is-open{transform:none;visibility:visible;transition:transform .25s ease-out}
+    .handle{display:flex;justify-content:center;padding-bottom:6px}
+    .handle span{width:40px;height:4px;border-radius:2px;background:var(--border-default)}
+    .f-head{align-items:center;padding:var(--space-12) var(--space-20);color:var(--text-brand)}
+    .f-head h2{font-size:24px;line-height:32px}
+    .reset{font-size:16px;line-height:24px;color:var(--text-brand)}
+    .f-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:var(--space-24);padding:var(--space-8) var(--space-20) var(--space-32)}
+    .group,.group:last-child{border:0;padding:0}
+    legend,.lbl{font-weight:500}
+    .pill{background:var(--bg-surface);border-color:var(--border-default);font-weight:500;padding-inline:14px}
+    .pill:has(:checked){border-color:var(--bg-brand)}
+    .pills[data-collapsed] .pill--extra:not(:has(:checked)){display:none}
+    .pills[data-collapsed] .pill--more{display:inline-flex}
+    .price-head output{font-size:16px;line-height:24px;padding:0}
+    .track{background:var(--border-default)}
+    .apply{display:block;flex:none;background:var(--bg-surface);border-top:1px solid var(--border-subtle);padding:var(--space-12) var(--space-20) calc(var(--space-12) + env(safe-area-inset-bottom))}
+  }
+  @media (max-width:767px){
+    .inner{gap:0;padding-block:var(--space-16) var(--space-28)}
+    .title-row{flex-direction:column;align-items:stretch;gap:var(--space-12)}
+    .title{gap:var(--space-12)}
+    .title .t-h1{letter-spacing:-.01em}
+    .quiz{display:flex;align-items:center;justify-content:space-between;gap:var(--space-12);min-height:44px;padding:var(--space-8) var(--space-16);border-radius:var(--radius-full);background:var(--bg-brand-hover);color:var(--text-on-brand);font-size:14px;line-height:20px;font-weight:500}
+    .grid{grid-template-columns:minmax(0,1fr);gap:var(--space-12)}
+    .more{margin-top:var(--space-12)}
+    .empty{padding-inline:var(--space-8)}
+    /* Мобільна картка в каталозі: компактний аватар, без цитати й відео, одна кнопка */
+    .grid :global(.card .avatar){width:56px;height:56px;font-size:20px}
+    .grid :global(.card .video),.grid :global(.card .quote),.grid :global(.card .profile){display:none}
+  }
+</style>
+
+<script>
+  type Cfg = { groups: { key: string; options: { value: string; label: string }[] }[]; bounds: { min: number; max: number; step: number }; sorts: string[]; page: number };
+  const root = document.querySelector<HTMLElement>('[data-catalog]');
+  if (root) {
+    const cfg: Cfg = JSON.parse(root.dataset.config!);
+    const $ = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const $$ = <T extends HTMLElement>(s: string, r: ParentNode = root) => [...r.querySelectorAll<T>(s)];
+    const form = $<HTMLFormElement>('[data-filters]');
+    const grid = $('[data-grid]');
+    const cells = $$('[data-cell]').map((el) => ({ el, f: JSON.parse(el.dataset.facets!) as Record<string, string[]>, price: +el.dataset.price!, rank: +el.dataset.rank!, years: +el.dataset.years!, i: +el.dataset.i! }));
+    type Cell = (typeof cells)[number];
+    const { min: MIN, max: MAX } = cfg.bounds;
+    const labelOf = (key: string, v: string) => cfg.groups.find((g) => g.key === key)?.options.find((o) => o.value === v)?.label ?? v;
+    const plural = (n: number, one: string, few: string, many: string) => (n % 10 === 1 && n % 100 !== 11 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? few : many);
+    const money = (n: number) => n.toLocaleString('uk-UA').replace(/ /g, ' ');
+
+    type State = { sel: Record<string, Set<string>>; min: number; max: number; sort: string; shown: number };
+    const blank = (): State['sel'] => Object.fromEntries(cfg.groups.map((g) => [g.key, new Set<string>()]));
+    const state: State = { sel: blank(), min: MIN, max: MAX, sort: cfg.sorts[0], shown: cfg.page };
+
+    // URL → стан
+    const q = new URLSearchParams(location.search);
+    const clamp = (v: string | null, d: number) => { const n = Number(v); return v && Number.isFinite(n) ? Math.min(MAX, Math.max(MIN, n)) : d; };
+    for (const g of cfg.groups) for (const v of q.getAll(g.key).flatMap((x) => x.split(','))) if (g.options.some((o) => o.value === v)) state.sel[g.key].add(v);
+    state.min = clamp(q.get('min'), MIN); state.max = Math.max(state.min, clamp(q.get('max'), MAX));
+    if (cfg.sorts.includes(q.get('sort') ?? '')) state.sort = q.get('sort')!;
+
+    const priceOn = (s: State) => s.min > MIN || s.max < MAX;
+    const priceLabel = (s: State) => (s.min > MIN && s.max < MAX ? `${money(s.min)} – ${money(s.max)} ₴` : s.max < MAX ? `до ${money(s.max)} ₴` : `від ${money(s.min)} ₴`);
+    const pass = (c: Cell, s: Pick<State, 'sel' | 'min' | 'max'>) =>
+      c.price >= s.min && c.price <= s.max && cfg.groups.every((g) => !s.sel[g.key].size || c.f[g.key]?.some((v) => s.sel[g.key].has(v)));
+    const sorters: Record<string, (a: Cell, b: Cell) => number> = {
+      nearest: (a, b) => a.rank - b.rank || a.i - b.i,
+      'price-asc': (a, b) => a.price - b.price || a.rank - b.rank,
+      'price-desc': (a, b) => b.price - a.price || a.rank - b.rank,
+      years: (a, b) => b.years - a.years || a.rank - b.rank,
+    };
+    const active = () => [
+      ...cfg.groups.flatMap((g) => [...state.sel[g.key]].map((v) => ({ key: g.key, value: v, label: labelOf(g.key, v) }))),
+      ...(priceOn(state) ? [{ key: 'price', value: '', label: priceLabel(state) }] : []),
+    ];
+    const without = (a: { key: string; value: string }) => {
+      const sel = Object.fromEntries(Object.entries(state.sel).map(([k, s]) => [k, new Set(s)]));
+      if (a.key === 'price') return { sel, min: MIN, max: MAX };
+      sel[a.key].delete(a.value);
+      return { sel, min: state.min, max: state.max };
+    };
+    const remove = (a: { key: string; value: string }) => { if (a.key === 'price') { state.min = MIN; state.max = MAX; } else state.sel[a.key].delete(a.value); };
+    const reset = () => { state.sel = blank(); state.min = MIN; state.max = MAX; };
+
+    const els = {
+      count: $('[data-count]'), chips: $('[data-chips]'), filtersLabel: $('[data-filters-label]'), applyLabel: $('[data-apply-label]'),
+      moreWrap: $('[data-more-wrap]'), more: $('[data-more]'), empty: $('[data-empty]'), suggest: $('[data-suggest]'),
+      priceOut: $('[data-price-out]'), range: $('[data-range]'), lo: form.elements.namedItem('min') as HTMLInputElement, hi: form.elements.namedItem('max') as HTMLInputElement,
+      sorts: $$<HTMLSelectElement>('[data-sort]'), hero: document.querySelector<HTMLSelectElement>('[data-hero-request]'),
+    };
+    const closeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18"/><path d="M6 6L18 18"/></svg>';
+    let suggestion: { key: string; value: string } | null = null;
+
+    function render(pushUrl = true) {
+      const list = cells.filter((c) => pass(c, state)).sort(sorters[state.sort]);
+      const n = list.length, act = active();
+      // Картки
+      cells.forEach((c) => (c.el.hidden = true));
+      list.forEach((c, i) => { c.el.hidden = i >= state.shown; grid.append(c.el); });
+      const rest = n - state.shown;
+      els.moreWrap.hidden = rest <= 0;
+      els.more.querySelector('span')!.textContent = `Показати ще ${Math.min(rest, cfg.page)}`;
+      // Лічильники
+      const detail = act.length ? ' · ' + act.map((a) => a.label).join(', ') : '';
+      els.count.innerHTML = `${n} ${plural(n, 'спеціаліст', 'спеціалісти', 'спеціалістів')}<span class="d-hide">${detail.replace(/</g, '&lt;')}</span>`;
+      els.count.parentElement!.hidden = n === 0;
+      els.filtersLabel.textContent = act.length ? `Фільтри · ${act.length}` : 'Фільтри';
+      els.applyLabel.textContent = n ? `Показати ${n} ${plural(n, 'фахівця', 'фахівців', 'фахівців')}` : 'Нічого не знайдено';
+      // Обрані фільтри (чипи)
+      els.chips.hidden = !act.length;
+      els.chips.replaceChildren(...act.map((a) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'chip'; b.innerHTML = `<span></span>${closeIcon}`;
+        b.firstElementChild!.textContent = a.label; b.setAttribute('aria-label', `Прибрати фільтр: ${a.label}`);
+        b.onclick = () => { remove(a); state.shown = cfg.page; render(); };
+        return b;
+      }));
+      if (act.length) { const r = document.createElement('button'); r.type = 'button'; r.className = 'chip-reset'; r.textContent = 'Скинути'; r.onclick = () => { reset(); render(); }; els.chips.append(r); }
+      // Порожній результат: пропонуємо прибрати фільтр, який повертає найбільше фахівців
+      els.empty.hidden = n > 0;
+      if (!n) {
+        const best = act.map((a) => ({ a, n: cells.filter((c) => pass(c, without(a))).length })).sort((x, y) => y.n - x.n)[0];
+        suggestion = best && best.n > 0 ? best.a : null;
+        els.suggest.querySelector('span')!.textContent = suggestion ? `Прибрати «${best.a.label}» · ${best.n} ${plural(best.n, 'фахівець', 'фахівці', 'фахівців')}` : 'Скинути всі фільтри';
+      }
+      // Поля форми
+      $$<HTMLInputElement>('input[type=checkbox]', form).forEach((i) => (i.checked = state.sel[i.name]?.has(i.value) ?? false));
+      els.lo.value = String(state.min); els.hi.value = String(state.max);
+      els.range.style.setProperty('--lo', `${((state.min - MIN) / (MAX - MIN || 1)) * 100}%`);
+      els.range.style.setProperty('--hi', `${((state.max - MIN) / (MAX - MIN || 1)) * 100}%`);
+      els.priceOut.textContent = `${money(state.min)} – ${money(state.max)} ₴`;
+      els.sorts.forEach((s) => (s.value = state.sort));
+      if (els.hero) els.hero.value = state.sel.request?.size === 1 ? [...state.sel.request][0] : '';
+      // Стан → URL
+      if (pushUrl) {
+        const p = new URLSearchParams();
+        for (const g of cfg.groups) if (state.sel[g.key].size) p.set(g.key, [...state.sel[g.key]].join(','));
+        if (state.min > MIN) p.set('min', String(state.min));
+        if (state.max < MAX) p.set('max', String(state.max));
+        if (state.sort !== cfg.sorts[0]) p.set('sort', state.sort);
+        const qs = p.toString().replace(/%2C/g, ',');
+        history.replaceState(null, '', location.pathname + (qs ? `?${qs}` : '') + location.hash);
+      }
+    }
+
+    form.addEventListener('submit', (e) => e.preventDefault());
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.type !== 'checkbox') return;
+      state.sel[t.name][t.checked ? 'add' : 'delete'](t.value); state.shown = cfg.page; render();
+    });
+    form.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.type !== 'range') return;
+      if (t === els.lo) state.min = Math.min(+t.value, state.max); else state.max = Math.max(+t.value, state.min);
+      state.shown = cfg.page; render();
+    });
+    $('[data-reset]').addEventListener('click', () => { reset(); state.shown = cfg.page; render(); });
+    $$('[data-expand]').forEach((b) => b.addEventListener('click', () => { const p = b.parentElement!; p.removeAttribute('data-collapsed'); b.remove(); p.querySelector<HTMLElement>('.pill--extra input')?.focus(); }));
+    els.sorts.forEach((s) => s.addEventListener('change', () => { state.sort = s.value; render(); }));
+    els.hero?.addEventListener('change', () => { state.sel.request = new Set(els.hero!.value ? [els.hero!.value] : []); state.shown = cfg.page; render(); });
+    els.more.addEventListener('click', () => {
+      const from = state.shown; state.shown += cfg.page; render(false);
+      cells.filter((c) => !c.el.hidden)[from]?.el.querySelector<HTMLElement>('a')?.focus();
+    });
+    els.suggest.addEventListener('click', () => { if (suggestion) remove(suggestion); else reset(); render(); });
+
+    // Нижня шторка фільтрів (мобільний)
+    const dim = $('[data-filters-dim]'), opener = $('[data-filters-open]');
+    const setOpen = (open: boolean) => {
+      form.classList.toggle('is-open', open); dim.hidden = !open;
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+      if (open) { form.setAttribute('role', 'dialog'); form.setAttribute('aria-modal', 'true'); form.querySelector<HTMLElement>('[data-reset]')?.focus(); }
+      else { form.removeAttribute('role'); form.removeAttribute('aria-modal'); opener.focus(); }
+    };
+    opener.addEventListener('click', () => setOpen(true));
+    dim.addEventListener('click', () => setOpen(false));
+    $('[data-filters-close]').addEventListener('click', () => setOpen(false));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && form.classList.contains('is-open')) setOpen(false); });
+    matchMedia('(min-width:1024px)').addEventListener('change', (e) => { if (e.matches && form.classList.contains('is-open')) setOpen(false); });
+
+    render(false);
+  }
+</script>

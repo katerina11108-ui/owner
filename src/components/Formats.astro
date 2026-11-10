@@ -1,0 +1,56 @@
+---
+import Button from './Button.astro';
+import { offices } from '../data/content';
+---
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2 class="t-h2 c-brand">Онлайн або в офісі</h2>
+      <p class="t-body-l c-secondary m-hide">Оберіть зручний формат — у фільтрах видно, хто з фахівців приймає онлайн, а хто в офісі.</p>
+    </div>
+    <div class="grid">
+      <article class="card card--online">
+        <h3 class="t-h3 c-brand">Онлайн — з будь-якої країни</h3>
+        <p class="t-body-l c-secondary m-hide">Відео або аудіо. Посилання на зустріч приходить разом із підтвердженням запису. Підходить, якщо ви за кордоном або вам зручніше вдома.</p>
+        <p class="t-body-m c-secondary d-hide">Відео або аудіо в Google Meet. Посилання приходить разом із підтвердженням. Слоти показуємо у вашому часі.</p>
+        <dl class="m-hide">
+          <div><dt>Платформа</dt><dd>Google Meet</dd></div>
+          <div><dt>Часовий пояс</dt><dd>Слоти показуємо у вашому часі</dd></div>
+        </dl>
+      </article>
+      <article class="card card--offline on-brand">
+        <h3 class="t-h3 c-on-brand">Офлайн — 3 офіси в центрі Києва</h3>
+        <p class="t-body-l c-on-brand-2">Якщо хочеться особистої зустрічі. Адреса офісу приходить у підтвердженні запису.</p>
+        <ul class="offices m-scroll" style="--m-card:180px">
+          {offices.map((o) => <li><img src={o.img} alt={`Кабінет: ${o.name}`} width="216" height="150" loading="lazy" /><b>{o.name}</b><span>{o.address}</span></li>)}
+        </ul>
+        <Button href="/specialists?format=offline" variant="light">Фахівці, які приймають в офісі</Button>
+      </article>
+    </div>
+  </div>
+</section>
+<style>
+  .grid{display:grid;grid-template-columns:1fr 2fr;gap:var(--space-20)}
+  .card{border-radius:var(--radius-2xl);padding:var(--space-32);display:flex;flex-direction:column;gap:var(--space-16);align-items:flex-start}
+  .card--online{background:var(--bg-panel)}
+  .card--offline{background:var(--bg-brand)}
+  dl{width:100%;margin:auto 0 0}
+  dl div{display:flex;justify-content:space-between;gap:var(--space-16);padding-block:var(--space-12);border-top:1px solid var(--border-default);font-size:14px;line-height:20px}
+  dt{color:var(--text-tertiary)}dd{margin:0;font-weight:600;color:var(--text-primary);text-align:right}
+  .offices{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-16);width:100%;margin-block:var(--space-8)}
+  .offices li{display:flex;flex-direction:column;gap:var(--space-4)}
+  .offices img{width:100%;aspect-ratio:216/150;object-fit:cover;border-radius:var(--radius-lg);margin-bottom:var(--space-8);background:var(--bg-brand-hover)}
+  .offices b{font-weight:600;color:var(--text-on-brand)}
+  .offices span{font-size:14px;line-height:20px;color:var(--text-on-brand-secondary)}
+  @media (max-width:1023px){
+    .grid{grid-template-columns:1fr}
+    .card{padding:var(--space-20)}
+    .offices{margin-inline:-20px;padding-inline:20px}
+    .offices b,.offices span{display:none}
+    .offices img{margin-bottom:0;aspect-ratio:180/120}
+    .section-head{margin-bottom:var(--space-16)}
+    .grid{gap:var(--space-12)}
+    dl div{flex-direction:column;gap:2px}dd{text-align:left}
+    .card :global(.btn){width:100%}
+  }
+</style>

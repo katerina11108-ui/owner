@@ -1,0 +1,50 @@
+---
+import Icon from './Icon.astro';
+import Button from './Button.astro';
+import { trustPoints } from '../data/content';
+import { settings } from '../data/site';
+const L = settings.license;
+---
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2 class="t-h2 c-brand">Що буде з тим, що ви розкажете</h2>
+      <p class="t-body-l c-secondary">Розмови з фахівцем конфіденційні. Нижче — хто і як за це відповідає.</p>
+    </div>
+    <div class="body">
+      <ul class="list">
+        {trustPoints.map(([t, d]) => <li><span class="check"><Icon name="check" size={16} /></span><span class="tx"><b class="t-body-l w-600 c-brand">{t}</b><span class="c-secondary">{d}</span></span></li>)}
+      </ul>
+      <aside class="card on-brand">
+        <h3 class="t-h3 c-on-brand">Ліцензована медична практика</h3>
+        <p class="c-on-brand-2">Центр працює офіційно, з ліцензією Міністерства охорони здоров'я на медичну практику за спеціальностями «Психіатрія», «Психотерапія» та «Медична психологія».</p>
+        <dl>
+          <div><dt>Ліцензіат</dt><dd>{L.holder}</dd></div>
+          <div><dt>Номер і дата</dt><dd>Наказ МОЗ {L.number} від {L.date}</dd></div>
+        </dl>
+        <Button href={L.registry} variant="light" icon="arrow-up-right" external>Перевірити в реєстрі МОЗ</Button>
+      </aside>
+    </div>
+  </div>
+</section>
+<style>
+  .body{display:flex;gap:var(--space-40);align-items:flex-start}
+  .list{flex:1}
+  .list li{display:flex;gap:var(--space-16);padding-block:var(--space-20);border-top:1px solid var(--border-subtle)}
+  .list li:last-child{border-bottom:1px solid var(--border-subtle)}
+  .check{width:28px;height:28px;flex:none;border-radius:50%;background:var(--bg-panel);color:var(--text-brand);display:grid;place-items:center}
+  .tx{display:flex;flex-direction:column;gap:var(--space-4)}
+  .card{width:440px;flex:none;background:var(--bg-brand);border-radius:var(--radius-xl);padding:var(--space-32);display:flex;flex-direction:column;gap:var(--space-20);align-items:flex-start}
+  dl{width:100%;margin:0}
+  dl div{padding-block:var(--space-12);border-top:1px solid var(--border-on-brand-strong);display:flex;flex-direction:column;gap:2px}
+  dt{font-size:12px;line-height:16px;color:var(--text-on-brand-muted)}
+  dd{margin:0;font-weight:500;color:var(--text-on-brand)}
+  @media (max-width:1023px){
+    .body{flex-direction:column;align-items:stretch;gap:var(--space-24)}
+    .list li{padding-block:var(--space-16);gap:var(--space-12)}
+    .tx :global(.t-body-l){font-size:16px;line-height:24px}
+    .tx > span:last-child{font-size:14px;line-height:20px}
+    .card{width:auto;padding:var(--space-24)}
+    .card :global(.btn){width:100%}
+  }
+</style>

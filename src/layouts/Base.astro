@@ -1,0 +1,30 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileMenu from '../components/MobileMenu.astro';
+import StickyCTA from '../components/StickyCTA.astro';
+interface Props { title: string; description?: string; sticky?: boolean }
+const { title, description = 'Психіатри, психотерапевти й психологи в одній команді. Онлайн або в офісах у Києві.', sticky = true } = Astro.props;
+---
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title === 'Neoiatria' ? 'Neoiatria — центр психіатрії та практичної психології' : `${title} — Neoiatria`}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/images/logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@400;500;600&display=swap&subset=cyrillic" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="sr-only skip" href="#main">Перейти до змісту</a>
+    <Header />
+    <MobileMenu />
+    <main id="main"><slot /></main>
+    <Footer />
+    {sticky && <StickyCTA />}
+  </body>
+</html>

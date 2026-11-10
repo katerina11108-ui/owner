@@ -1,0 +1,23 @@
+---
+// Хлібні крихти на брендовому фоні. Останній елемент — поточна сторінка (без посилання).
+interface Props { items: { label: string; href?: string }[] }
+const { items } = Astro.props;
+---
+<nav class="crumbs" aria-label="Хлібні крихти">
+  <ol>
+    {items.map((it, i) => (
+      <li>
+        {it.href ? <a href={it.href}>{it.label}</a> : <span aria-current="page">{it.label}</span>}
+        {i < items.length - 1 && <span class="sep" aria-hidden="true">/</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
+<style>
+  ol{display:flex;flex-wrap:wrap;gap:var(--space-12);font-size:14px;line-height:20px}
+  li{display:flex;gap:var(--space-12)}
+  a{color:var(--text-on-brand-muted)}
+  a:hover{color:var(--text-on-brand)}
+  .sep{color:var(--text-brand-muted)}
+  [aria-current]{color:var(--text-on-brand-accent)}
+</style>

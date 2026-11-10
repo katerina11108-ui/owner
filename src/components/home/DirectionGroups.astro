@@ -1,0 +1,56 @@
+---
+import Icon from '../Icon.astro';
+import { groups } from '../../data/directions';
+import { ua } from '../../data/site';
+---
+<div class="groups">
+  {groups.map((g, gi) => (
+    <article class:list={['group', { 'is-open': gi === 0 }]} data-group>
+      <div class="head">
+        <span class="tile"><Icon name={g.icon} size={30} /></span>
+        <a class="count" href={`/specialists?group=${g.slug}`}><span>{g.count} {ua(g.count)}</span><Icon name="arrow-right" size={14} /></a>
+      </div>
+      <div class="titles"><h3 class="t-h4 w-600 c-brand">{g.title}</h3><p class="c-tertiary">{g.sub}</p>
+        <button class="toggle" type="button" aria-expanded={gi === 0 ? 'true' : 'false'} aria-controls={`dir-${g.slug}`} data-group-toggle><span class="sr-only">Показати напрями: {g.title}</span><Icon name="chevron-down" size={24} /></button>
+      </div>
+      <ul class="items" id={`dir-${g.slug}`}>
+        {g.items.map((d) => (
+          <li><a class="item" href={`/directions/${d.slug}`}>
+            <span class="it"><span class="t-body-l w-500 c-brand">{d.title}</span><span class="t-body-s c-tertiary">{d.hint}</span></span>
+            <span class="t-body-s c-tertiary" aria-label={`${d.count} ${ua(d.count)}`}>{d.count}</span>
+          </a></li>
+        ))}
+      </ul>
+    </article>
+  ))}
+</div>
+<style>
+  .groups{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-20);align-items:stretch}
+  .group{background:var(--bg-muted);border-radius:var(--radius-xl);padding:var(--space-28) var(--space-28) var(--space-16);display:flex;flex-direction:column;gap:var(--space-16)}
+  .head{display:flex;justify-content:space-between;align-items:center;padding-bottom:var(--space-16)}
+  .tile{width:52px;height:52px;border-radius:var(--radius-lg);background:var(--bg-surface);display:grid;place-items:center;color:var(--icon-brand)}
+  .count{display:inline-flex;align-items:center;gap:4px;padding:4px 10px 4px 12px;border-radius:var(--radius-full);background:var(--bg-surface);color:var(--text-brand);font-size:14px;line-height:20px;font-weight:500}
+  .count:hover{background:var(--bg-panel)}
+  .titles{display:flex;flex-direction:column;position:relative}
+  .toggle{display:none}
+  .item{display:flex;gap:var(--space-12);align-items:flex-start;padding-block:var(--space-16);border-top:1px solid var(--border-default)}
+  .item:hover .c-brand{text-decoration:underline;text-underline-offset:3px}
+  .it{flex:1;display:flex;flex-direction:column;gap:var(--space-2)}
+  @media (max-width:1023px){.groups{grid-template-columns:1fr}}
+  @media (max-width:767px){
+    .group{padding:var(--space-20);gap:var(--space-12)}
+    .head{padding-bottom:0}
+    .titles{padding-right:48px}
+    .toggle{display:grid;place-items:center;position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:44px;height:44px;color:var(--text-brand)}
+    .toggle::after{content:'';position:absolute;inset:-60px -20px -20px -400px}
+    .group:not(.is-open) .items{display:none}
+    .group.is-open .toggle :global(svg){transform:rotate(180deg)}
+    .group.is-open{padding-bottom:var(--space-8)}
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-group-toggle]').forEach((b) => b.addEventListener('click', () => {
+    const g = b.closest('[data-group]')!; const open = g.classList.toggle('is-open'); b.setAttribute('aria-expanded', String(open));
+  }));
+</script>

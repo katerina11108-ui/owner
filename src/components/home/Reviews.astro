@@ -1,0 +1,36 @@
+---
+import Icon from '../Icon.astro';
+import { reviews } from '../../data/content';
+import { findSpecialist } from '../../data/specialists';
+---
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2 class="t-h2 c-brand">Як це було в інших</h2>
+      <p class="t-body-l c-secondary">Відгук можна залишити лише після завершених сесій. Видно, з чим людина прийшла і до кого ходила.</p>
+    </div>
+    <div class="grid m-scroll" style="--m-card:300px">
+      {reviews.map((r, i) => { const sp = r.specialist ? findSpecialist(r.specialist) : null; return (
+        <figure class:list={['card', { 'card--brand on-brand': i === 1 }]}>
+          <ul class="tags">{r.tags.map((t) => <li>{t}</li>)}</ul>
+          <blockquote class="t-h5">«{r.quote}»</blockquote>
+          {sp && <figcaption><a href={`/specialists/${sp.slug}`}><span>{r.caption} {sp.name}</span><Icon name="arrow-right" size={14} /></a></figcaption>}
+        </figure>
+      ); })}
+    </div>
+  </div>
+</section>
+<style>
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-20)}
+  .card{margin:0;background:var(--bg-muted);border-radius:var(--radius-xl);padding:var(--space-28);display:flex;flex-direction:column;gap:var(--space-24);justify-content:space-between}
+  .card--brand{background:var(--bg-brand)}
+  .tags{display:flex;gap:var(--space-8);flex-wrap:wrap}
+  .tags li{padding:4px 12px;border-radius:var(--radius-full);background:var(--bg-surface);font-size:12px;line-height:16px;font-weight:500;color:var(--text-primary)}
+  .card--brand .tags li{background:var(--bg-brand-hover);color:var(--text-on-brand-accent)}
+  blockquote{margin:0;color:var(--text-brand);flex:1}
+  .card--brand blockquote{color:var(--text-on-brand)}
+  figcaption a{display:inline-flex;align-items:center;gap:6px;font-size:12px;line-height:16px;color:var(--text-tertiary)}
+  .card--brand figcaption a{color:var(--text-on-brand-muted)}
+  figcaption a:hover span{text-decoration:underline}
+  @media (max-width:1023px){.grid{grid-template-columns:1fr}.card{padding:var(--space-20)}}
+</style>
