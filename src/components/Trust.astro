@@ -4,14 +4,17 @@ import Button from './Button.astro';
 import { trustPoints } from '../data/content';
 import { settings } from '../data/site';
 const L = settings.license;
+// reverse — картка ліцензії ліворуч (сторінка «Про центр»)
+interface Props { title?: string; lead?: string; reverse?: boolean }
+const { title = 'Що буде з тим, що ви розкажете', lead = 'Розмови з фахівцем конфіденційні. Нижче — хто і як за це відповідає.', reverse = false } = Astro.props;
 ---
 <section class="section">
   <div class="container">
     <div class="section-head">
-      <h2 class="t-h2 c-brand">Що буде з тим, що ви розкажете</h2>
-      <p class="t-body-l c-secondary">Розмови з фахівцем конфіденційні. Нижче — хто і як за це відповідає.</p>
+      <h2 class="t-h2 c-brand">{title}</h2>
+      <p class="t-body-l c-secondary">{lead}</p>
     </div>
-    <div class="body">
+    <div class:list={['body', { 'body--reverse': reverse }]}>
       <ul class="list">
         {trustPoints.map(([t, d]) => <li><span class="check"><Icon name="check" size={16} /></span><span class="tx"><b class="t-body-l w-600 c-brand">{t}</b><span class="c-secondary">{d}</span></span></li>)}
       </ul>
@@ -29,6 +32,7 @@ const L = settings.license;
 </section>
 <style>
   .body{display:flex;gap:var(--space-40);align-items:flex-start}
+  .body--reverse{flex-direction:row-reverse}
   .list{flex:1}
   .list li{display:flex;gap:var(--space-16);padding-block:var(--space-20);border-top:1px solid var(--border-subtle)}
   .list li:last-child{border-bottom:1px solid var(--border-subtle)}

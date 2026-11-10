@@ -43,8 +43,8 @@ import { offices } from '../data/content';
   .offices b{font-weight:600;color:var(--text-on-brand)}
   .offices span{font-size:14px;line-height:20px;color:var(--text-on-brand-secondary)}
   @media (max-width:1023px){
-    .grid{grid-template-columns:1fr}
-    .card{padding:var(--space-20)}
+    .grid{grid-template-columns:minmax(0,1fr)}
+    .card{padding:var(--space-20);min-width:0}
     .offices{margin-inline:-20px;padding-inline:20px}
     .offices b,.offices span{display:none}
     .offices img{margin-bottom:0;aspect-ratio:180/120}

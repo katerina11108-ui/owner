@@ -1,0 +1,97 @@
+---
+// «Поставити питання» — модалка поверх профілю (макет Ask Question: Form → Sent). Відкривається будь-яким посиланням href="#ask".
+// Дані йдуть у Netlify Forms (форма "question"). TODO: після підключення CRM/пошти центру — змінити одержувача.
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { type Specialist, initials } from '../data/specialists';
+import { settings } from '../data/site';
+interface Props { sp: Specialist }
+const { sp } = Astro.props;
+---
+<dialog class="ask" id="ask" data-ask aria-labelledby="ask-title">
+  <div class="close"><button type="button" data-ask-close aria-label="Закрити"><Icon name="close" size={20} /></button></div>
+
+  <form class="form" name="question" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-ask-form>
+    <input type="hidden" name="form-name" value="question" />
+    <input type="hidden" name="specialist" value={sp.name} />
+    <p class="sr-only" aria-hidden="true"><label>Не заповнюйте: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+    <div class="to">
+      <span class="ava">{sp.photo ? <img src={sp.photo} alt="" width="48" height="48" /> : <span aria-hidden="true">{initials(sp.name)}</span>}</span>
+      <div>
+        <h2 class="t-h5 w-500 c-brand" id="ask-title">Питання до фахівця</h2>
+        <p class="t-body-s c-secondary">{sp.name} · відповідь протягом 24 год. Без зобов’язань.</p>
+      </div>
+    </div>
+    <div class="field"><label for="ask-name">Як до вас звертатися</label><input class="input" id="ask-name" name="name" autocomplete="given-name" required /></div>
+    <div class="field">
+      <label for="ask-contact">Email або Telegram</label>
+      <input class="input" id="ask-contact" name="contact" autocomplete="email" required aria-describedby="ask-contact-hint" />
+      <p class="hint" id="ask-contact-hint">Куди надіслати відповідь</p>
+    </div>
+    <div class="field">
+      <label for="ask-q">Ваше питання</label>
+      <textarea class="input" id="ask-q" name="question" required placeholder="Наприклад: чи працюєте ви з панічними атаками? Чи можна почати з онлайн-сесії?" aria-describedby="ask-q-hint"></textarea>
+      <p class="hint" id="ask-q-hint">Не обов’язково розповідати подробиці — достатньо кількох речень.</p>
+    </div>
+    <p class="form-error" data-ask-error hidden role="alert">Не вдалося надіслати. Спробуйте ще раз або <a href={settings.telegram} target="_blank" rel="noopener">напишіть нам у Telegram</a>.</p>
+    <Button type="submit" size="l" block>Надіслати питання</Button>
+    <p class="privacy hint"><Icon name="lock" size={16} /><span>Конфіденційно. Бачить лише фахівець і адміністратор центру.</span></p>
+  </form>
+
+  <div class="sent" data-ask-sent hidden>
+    <span class="ok"><Icon name="check" size={30} /></span>
+    <h2 class="t-h3 c-brand" tabindex="-1" data-ask-sent-title>Питання надіслано</h2>
+    <p class="c-secondary">Відповідь надійде протягом 24 годин<span data-ask-where></span>. Поки чекаєте — можна переглянути вільні години.</p>
+    <Button href="#book" size="l" block data-ask-close>Переглянути вільні години</Button>
+    <Button variant="outline" size="l" block data-ask-close>Закрити</Button>
+  </div>
+</dialog>
+<style>
+  .ask{border:0;padding:var(--space-32);width:560px;max-width:calc(100vw - 2 * var(--space-16));max-height:calc(100dvh - 2 * var(--space-16));overflow-y:auto;background:var(--bg-surface);color:var(--text-primary);border-radius:var(--radius-2xl);box-shadow:0 24px 48px rgb(0 0 0 / .18)}
+  .ask::backdrop{background:var(--overlay-dim)}
+  .close{display:flex;justify-content:flex-end}
+  .close button{width:40px;height:40px;border-radius:50%;background:var(--bg-page);display:grid;place-items:center}
+  .close button:hover{background:var(--bg-muted)}
+  .form{display:flex;flex-direction:column;gap:18px}
+  .to{display:flex;align-items:center;gap:var(--space-12)}
+  .ava{width:48px;height:48px;flex:none;border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-placeholder);display:grid;place-items:center;color:var(--text-brand);font-weight:600}
+  .ava img{width:100%;height:100%;object-fit:cover}
+  .privacy{display:flex;align-items:center;gap:var(--space-8)}
+  .sent{display:flex;flex-direction:column;align-items:center;gap:var(--space-16);text-align:center;padding-bottom:var(--space-8)}
+  .sent[hidden],.form[hidden]{display:none}
+  .sent h2:focus{outline:none}
+  .ok{width:64px;height:64px;border-radius:50%;background:var(--bg-brand);color:var(--text-on-brand);display:grid;place-items:center}
+  @media (max-width:767px){
+    .ask{margin:auto 0 0;width:100%;max-width:100%;max-height:calc(100dvh - var(--space-40));border-radius:24px 24px 0 0;padding:var(--space-16) var(--space-20) calc(var(--space-24) + env(safe-area-inset-bottom))}
+  }
+</style>
+<script>
+  import { submitForm } from '../lib/forms';
+  const dlg = document.querySelector<HTMLDialogElement>('[data-ask]');
+  if (dlg) {
+    const form = dlg.querySelector<HTMLFormElement>('[data-ask-form]')!;
+    const sent = dlg.querySelector<HTMLElement>('[data-ask-sent]')!;
+    const error = dlg.querySelector<HTMLElement>('[data-ask-error]')!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    const open = () => { if (!dlg.open) { form.hidden = false; sent.hidden = true; error.hidden = true; dlg.showModal(); } };
+    document.addEventListener('click', (e) => {
+      const a = (e.target as Element).closest<HTMLAnchorElement>('a[href="#ask"]');
+      if (a) { e.preventDefault(); open(); }
+    });
+    if (location.hash === '#ask') open();
+    dlg.querySelectorAll('[data-ask-close]').forEach((b) => b.addEventListener('click', () => dlg.close()));
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); }); // клік по затемненню
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submit.disabled = true; error.hidden = true;
+      try {
+        await submitForm(form);
+        const contact = String(new FormData(form).get('contact') ?? '').trim();
+        dlg.querySelector('[data-ask-where]')!.textContent = contact ? ` на ${contact}` : '';
+        form.reset(); form.hidden = true; sent.hidden = false;
+        dlg.querySelector<HTMLElement>('[data-ask-sent-title]')!.focus();
+      } catch { error.hidden = false; }
+      submit.disabled = false;
+    });
+  }
+</script>

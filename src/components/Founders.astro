@@ -1,5 +1,6 @@
 ---
-interface Props { variant?: 'section' | 'plain' }
+interface Props { variant?: 'section' | 'plain'; title?: string }
+const { title = 'Хто відповідає за те, до кого ви потрапите' } = Astro.props;
 ---
 <section class="founders on-brand">
   <div class="container inner">
@@ -14,7 +15,7 @@ interface Props { variant?: 'section' | 'plain' }
       </figure>
     </div>
     <div class="text">
-      <h2 class="t-h2 c-on-brand">Хто відповідає за те, до кого ви потрапите</h2>
+      <h2 class="t-h2 c-on-brand">{title}</h2>
       <p class="t-body-l c-on-brand-2">Центр заснували Євгеній Воронков і Василіса Левченко. Євгеній — психіатр і психотерапевт, працює в психодинамічному та клінічному підходах, супервізор і веде навчальні програми для фахівців. Понад 45 років клінічного досвіду. Василіса — виконавча директорка: тримає центр у лапах, щоб ви потрапили до свого фахівця.</p>
       <p class="t-body-l c-on-brand-2">Кожен у команді пройшов їхній особистий відбір — не лише за дипломом, а й за тим, як працює з людьми.</p>
       <div class="vetting">

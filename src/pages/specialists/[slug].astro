@@ -1,12 +1,13 @@
 ---
 // Профіль фахівця (/specialists/:slug). Усі блоки — з полів CMS-типу Specialist; порожнє поле → блок не показуємо.
-// Якорі: #book (картка запису), #about, #video. Запис і питання ведуть у флоу /booking та /ask (окремі екрани макета).
+// Якорі: #book (картка запису), #about, #video, #ask (модалка «Поставити питання»). Запис веде на /booking/:slug?session=N.
 import Base from '../../layouts/Base.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Button from '../../components/Button.astro';
 import Icon from '../../components/Icon.astro';
 import CrisisStrip from '../../components/CrisisStrip.astro';
 import CTAPrefooterSpecialist from '../../components/CTAPrefooterSpecialist.astro';
+import AskDialog from '../../components/AskDialog.astro';
 import { type Specialist, specialists, toUAH, priceLabel, initials, firstSession, parseEducation } from '../../data/specialists';
 import { findDirection } from '../../data/directions';
 import { methodInfo } from '../../data/methods';
@@ -19,8 +20,8 @@ const { sp } = Astro.props;
 
 const first = firstSession(sp);
 const firstIndex = sp.sessions.indexOf(first);
-const bookHref = (i: number) => `/booking?specialist=${sp.slug}&session=${i}`;
-const askHref = `/ask?specialist=${sp.slug}`;
+const bookHref = (i: number) => `/booking/${sp.slug}?session=${i}`;
+const askHref = '#ask'; // відкриває модалку AskDialog
 const when = sp.slots?.[0] ? `${sp.slots[0].day}, ${sp.slots[0].time}` : sp.nearest;
 const city = sp.offline ? (/дніпро/i.test(sp.offline) ? 'Дніпро' : 'Київ') : '';
 const formats = [sp.online && 'Онлайн', sp.offline && `Офлайн (${city})`].filter(Boolean).join(' · ');
@@ -204,6 +205,8 @@ const numClass = (m: string) => (m.length > 2 ? 'num num--long' : 'num');
   </div>
 
   <CTAPrefooterSpecialist sp={sp} formats={formats} bookHref={bookHref(firstIndex)} askHref={askHref} />
+
+  <AskDialog sp={sp} />
 
   <div class="bar" data-book-bar aria-hidden="true">
     <p><b>{uah(toUAH(first))} · {first.minutes} хв</b>{sp.nearest && <span>Найближче: {sp.nearest}</span>}</p>

@@ -1,0 +1,92 @@
+---
+// «Запис підтверджено» (/booking/confirmed) — сюди Altegio повертає після успішної оплати (redirect URL у налаштуваннях віджета).
+// Підсумок запису беремо з sessionStorage (зберігає крок «Ваші дані»); якщо його немає — показуємо лише «Що далі».
+// TODO: коли Altegio віддаватиме час сесії — додати його в підсумок і кнопки «+ Google / Apple Calendar».
+import Base from '../../layouts/Base.astro';
+import Button from '../../components/Button.astro';
+import Icon from '../../components/Icon.astro';
+import { settings } from '../../data/site';
+const next = [
+  { icon: 'mail', t: 'Зараз', d: 'Лист із підтвердженням і деталями зустрічі' },
+  { icon: 'calendar', t: 'За 24 години', d: 'Нагадування на пошту і в Telegram, якщо ви його вказали' },
+  { icon: 'clock', t: 'За 10 хвилин', d: 'Ще раз надішлемо посилання, щоб не шукати в пошті' },
+];
+---
+<Base title="Запис підтверджено" sticky={false} noindex>
+  <section class="container wrap" data-confirmed>
+    <span class="ok"><Icon name="check" size={36} /></span>
+    <div class="title">
+      <h1 class="t-h1 c-brand">Запис підтверджено</h1>
+      <p class="t-body-l c-secondary">Лист із деталями вже <span data-c-email>у вашій пошті</span>.</p>
+    </div>
+    <div class="content">
+      <div class="card summary" data-c-summary hidden>
+        <div class="who">
+          <span class="ava" data-c-ava></span>
+          <p><b class="t-body-l w-500" data-c-name></b><span class="t-body-s c-secondary" data-c-role></span></p>
+        </div>
+        <ul class="rows">
+          <li><Icon name="video" size={20} /><p><b data-c-format></b><span data-c-format-note></span></p></li>
+          <li><Icon name="clock" size={20} /><p><b data-c-session></b></p></li>
+        </ul>
+        <p class="total"><span class="c-secondary">Сплачено</span><b class="t-h4 w-600 c-brand" data-c-price></b></p>
+        <p class="note t-body-s c-secondary"><Icon name="calendar" size={16} /><span>Безкоштовне скасування або перенесення — за 24 год до сесії</span></p>
+      </div>
+      <div class="card next">
+        <h2 class="t-h5 w-500 c-brand">Що далі</h2>
+        <ul class="rows">{next.map((n) => <li><Icon name={n.icon} size={20} /><p><b>{n.t}</b><span>{n.d}</span></p></li>)}</ul>
+      </div>
+    </div>
+    <div class="actions">
+      <Button href="/">На головну</Button>
+      <a class="u" href={settings.telegram} target="_blank" rel="noopener">Перенести або скасувати запис</a>
+    </div>
+  </section>
+</Base>
+<style>
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:var(--space-32);padding-block:var(--space-80) var(--space-120)}
+  .ok{width:72px;height:72px;border-radius:50%;background:var(--bg-brand);color:var(--text-on-brand);display:grid;place-items:center}
+  .title{display:flex;flex-direction:column;gap:var(--space-12);text-align:center}
+  .content{display:flex;gap:var(--space-24);align-items:stretch;justify-content:center;width:100%;max-width:1000px}
+  .card{flex:1;min-width:0;max-width:488px;border-radius:var(--radius-xl);padding:var(--space-24);display:flex;flex-direction:column}
+  .card[hidden]{display:none}
+  .summary{background:var(--bg-surface);box-shadow:0 4px 16px rgb(18 46 33 / .06);gap:var(--space-16)}
+  .next{background:var(--bg-panel);gap:var(--space-4)}
+  .who{display:flex;align-items:center;gap:var(--space-12)}
+  .who p{display:flex;flex-direction:column;gap:var(--space-2);min-width:0}
+  .ava{width:56px;height:56px;flex:none;border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-placeholder);display:grid;place-items:center;color:var(--text-brand);font-size:18px;font-weight:600}
+  .ava :global(img){width:100%;height:100%;object-fit:cover}
+  .rows li{display:flex;gap:var(--space-12);align-items:flex-start;padding-block:var(--space-12)}
+  .summary .rows li{border-top:1px solid var(--border-subtle)}
+  .next .rows li{padding-block:14px}
+  .next .rows li + li{border-top:1px solid var(--border-default)}
+  .rows :global(svg){margin-top:2px}
+  .rows p{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-2)}
+  .rows b{font-weight:500}
+  .rows span{font-size:14px;line-height:20px;color:var(--text-secondary)}
+  .total{display:flex;align-items:center;justify-content:space-between;padding-top:var(--space-16);border-top:1px solid var(--border-default)}
+  .note{display:flex;gap:var(--space-8);align-items:flex-start}
+  .note :global(svg){margin-top:2px}
+  .actions{display:flex;align-items:center;gap:var(--space-24);flex-wrap:wrap;justify-content:center}
+  .u{color:var(--text-brand);font-weight:500;text-decoration:underline;text-underline-offset:3px}
+  @media (max-width:767px){
+    .wrap{gap:var(--space-24);padding-block:var(--space-40) var(--space-64)}
+    .content{flex-direction:column;align-items:stretch}
+    .card{max-width:none;padding:var(--space-20)}
+    .actions{flex-direction:column;gap:var(--space-16);width:100%}
+    .actions :global(.btn){width:100%}
+  }
+</style>
+<script>
+  const root = document.querySelector<HTMLElement>('[data-confirmed]');
+  let b: Record<string, string> | null = null;
+  try { b = JSON.parse(sessionStorage.getItem('neo-booking') ?? 'null'); } catch { /* немає доступу до сховища */ }
+  if (root && b) {
+    const set = (k: string, v: string) => { const el = root.querySelector<HTMLElement>(`[data-c-${k}]`); if (el) el.textContent = v ?? ''; };
+    set('name', b.specialist); set('role', b.role); set('format', b.format); set('format-note', b.formatNote); set('session', b.session); set('price', b.price);
+    if (b.email) set('email', `на ${b.email}`);
+    const ava = root.querySelector<HTMLElement>('[data-c-ava]')!;
+    if (b.photo) { const img = document.createElement('img'); img.src = b.photo; img.alt = ''; ava.append(img); } else ava.textContent = b.initials;
+    root.querySelector<HTMLElement>('[data-c-summary]')!.hidden = false;
+  }
+</script>

@@ -268,7 +268,9 @@ const config = { groups: filterGroups.map((g) => ({ key: g.key, options: g.optio
     // URL → стан
     const q = new URLSearchParams(location.search);
     const clamp = (v: string | null, d: number) => { const n = Number(v); return v && Number.isFinite(n) ? Math.min(MAX, Math.max(MIN, n)) : d; };
-    for (const g of cfg.groups) for (const v of q.getAll(g.key).flatMap((x) => x.split(','))) if (g.options.some((o) => o.value === v)) state.sel[g.key].add(v);
+    // ?format=offline (посилання з блоку «Онлайн або в офісі») = усі офлайн-міста
+    const alias = (k: string, v: string) => (k === 'format' && v === 'offline' ? cfg.groups.find((g) => g.key === k)!.options.map((o) => o.value).filter((o) => o !== 'online') : [v]);
+    for (const g of cfg.groups) for (const v of q.getAll(g.key).flatMap((x) => x.split(',')).flatMap((x) => alias(g.key, x))) if (g.options.some((o) => o.value === v)) state.sel[g.key].add(v);
     state.min = clamp(q.get('min'), MIN); state.max = Math.max(state.min, clamp(q.get('max'), MAX));
     if (cfg.sorts.includes(q.get('sort') ?? '')) state.sort = q.get('sort')!;
 

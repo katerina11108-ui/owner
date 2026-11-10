@@ -53,3 +53,17 @@ ul,ol{list-style:none}
   .m-hide{display:none!important}
 }
 @media (min-width:768px){.d-hide{display:none!important}}
+
+/* Форми: поля запису й «Поставити питання» */
+.field{display:flex;flex-direction:column;gap:var(--space-8);min-width:0}
+.field > label,.field-label{font-weight:500;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.field-label small,.field > label small{font-size:14px;line-height:20px;font-weight:400;color:var(--text-tertiary)}
+.input{width:100%;font:inherit;line-height:24px;color:var(--text-primary);background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:15px var(--space-16);transition:border-color .15s,box-shadow .15s}
+.input::placeholder{color:var(--text-tertiary);opacity:1}
+.input:hover{border-color:var(--border-strong)}
+.input:focus{outline:none;border-color:var(--border-brand);box-shadow:0 0 0 .5px var(--border-brand)}
+textarea.input{min-height:120px;padding-block:14px;resize:vertical;display:block}
+.hint{font-size:14px;line-height:20px;color:var(--text-tertiary)}
+.form-error{font-size:14px;line-height:20px;color:var(--warm-600);background:var(--bg-crisis);border-radius:var(--radius-lg);padding:var(--space-12) var(--space-16)}
+.form-error a{font-weight:500;text-decoration:underline;text-underline-offset:3px}
+.form-error[hidden]{display:none}

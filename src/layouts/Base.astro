@@ -4,8 +4,9 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MobileMenu from '../components/MobileMenu.astro';
 import StickyCTA from '../components/StickyCTA.astro';
-interface Props { title: string; description?: string; sticky?: boolean }
-const { title, description = 'Психіатри, психотерапевти й психологи в одній команді. Онлайн або в офісах у Києві.', sticky = true } = Astro.props;
+// chrome=false — без хедера, меню й футера (флоу запису має власний хедер); noindex — службові сторінки.
+interface Props { title: string; description?: string; sticky?: boolean; chrome?: boolean; noindex?: boolean }
+const { title, description = 'Психіатри, психотерапевти й психологи в одній команді. Онлайн або в офісах у Києві.', sticky = true, chrome = true, noindex = false } = Astro.props;
 ---
 <!doctype html>
 <html lang="uk">
@@ -14,6 +15,7 @@ const { title, description = 'Психіатри, психотерапевти �
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title === 'Neoiatria' ? 'Neoiatria — центр психіатрії та практичної психології' : `${title} — Neoiatria`}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" href="/images/logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,10 +23,10 @@ const { title, description = 'Психіатри, психотерапевти �
   </head>
   <body>
     <a class="sr-only skip" href="#main">Перейти до змісту</a>
-    <Header />
-    <MobileMenu />
+    {chrome && <Header />}
+    {chrome && <MobileMenu />}
     <main id="main"><slot /></main>
-    <Footer />
+    {chrome && <Footer />}
     {sticky && <StickyCTA />}
   </body>
 </html>

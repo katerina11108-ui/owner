@@ -1,0 +1,95 @@
+---
+// Про центр (/about): історія, засновники, принципи, довіра, формати, події. Спільні блоки — ті самі компоненти, що на головній.
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Icon from '../components/Icon.astro';
+import Founders from '../components/Founders.astro';
+import Trust from '../components/Trust.astro';
+import Formats from '../components/Formats.astro';
+import Events from '../components/home/Events.astro';
+import CTAPrefooter from '../components/CTAPrefooter.astro';
+// CMS: тип Principle. TODO: іконка «Switch» (другий принцип) — в Icon-наборі її немає, тимчасово users.
+const principles = [
+  { icon: 'payment', title: 'Платите за одну сесію', text: 'Без пакетів і абонементів. Не підійшло — просто не записуєтесь знову.' },
+  { icon: 'users', title: 'Фахівець може не підійти', text: 'І це нормально. Напишіть нам — допоможемо знайти іншого, без пояснень і незручності.' },
+  { icon: 'psychiatrist', title: 'Психіатр поруч', text: 'Якщо знадобиться діагностика чи ліки, не доведеться шукати лікаря окремо.' },
+  { icon: 'lock', title: 'Конфіденційність', text: 'Звернення, консультації та персональні дані залишаються між вами і центром.' },
+];
+---
+<Base title="Про центр" description="Neoiatria — центр психіатрії та практичної психології. Психіатри, психотерапевти й психологи в одній команді: онлайн і в офісах у Києві.">
+  <section class="hero on-brand">
+    <div class="container inner">
+      <div class="m-hide"><Breadcrumbs items={[{ label: 'Головна', href: '/' }, { label: 'Про нас' }]} /></div>
+      <div class="title" data-hero-ctas>
+        <h1 class="t-h1 c-on-brand">Центр, який зібрали практики</h1>
+        <p class="t-body-l c-on-brand-2">Neoiatria — центр психіатрії та практичної психології. Психіатри, психотерапевти й психологи працюють в одній команді: онлайн по всьому світу та в трьох офісах у центрі Києва.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container story">
+      <div class="text">
+        <h2 class="t-h2">Чому ми є</h2>
+        <p class="t-body-l c-secondary">У кожного своя причина звернутися по допомогу — від «просто погано» до конкретного діагнозу. Ми створили центр, де з будь-якою з них не треба ходити по колу між різними фахівцями.</p>
+        <p class="t-body-l c-secondary">Психіатр, психотерапевт і психолог працюють поруч. Якщо під час терапії знадобиться медична діагностика чи ліки, вас не відправлять шукати лікаря з нуля — колега вже в команді.</p>
+        <p class="t-body-l c-secondary">Сайт з’явився лише зараз, але центр працює не перший рік — і досі тримається на тому, з чого починався: на особистому відборі кожного фахівця.</p>
+      </div>
+      <div class="photo"><img src="/images/team.jpg" alt="Команда центру Neoiatria" width="588" height="564" loading="lazy" /></div>
+    </div>
+  </section>
+
+  <Founders title="Це не каталог. Це команда, яку зібрали двоє практиків." />
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="t-h2">У що ми віримо</h2>
+        <p class="t-body-l c-secondary wide">Чотири правила, на яких тримається робота центру — і які ви відчуєте з першої сесії.</p>
+      </div>
+      <ul class="principles m-scroll" style="--m-card:260px">
+        {principles.map((p) => (
+          <li>
+            <span class="tile"><Icon name={p.icon} size={28} /></span>
+            <div><h3 class="t-h5 w-600">{p.title}</h3><p class="c-secondary">{p.text}</p></div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <Trust title="Чому нам можна довіряти" lead="Ми не каталог психологів, а реальний медичний центр — з офісами, ліцензією і командою, яка відповідає за якість." reverse />
+  <Formats />
+  <Events />
+  <CTAPrefooter />
+</Base>
+<style>
+  .hero{background:var(--bg-brand);border-radius:0 0 var(--radius-2xl) var(--radius-2xl)}
+  .inner{display:flex;flex-direction:column;gap:var(--space-24);padding-block:var(--space-32) var(--space-64)}
+  .title{display:flex;flex-direction:column;gap:var(--space-12)}
+  .title h1{max-width:760px}
+  .title p{max-width:640px}
+  .story{display:flex;gap:var(--space-24);align-items:center}
+  .text{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-24)}
+  .photo{width:588px;height:564px;flex:none;border-radius:var(--radius-2xl);overflow:hidden;background:var(--bg-placeholder)}
+  .photo img{width:100%;height:100%;object-fit:cover}
+  .section-head :global(.wide){max-width:none}
+  .principles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-24)}
+  .principles li{background:var(--bg-surface);border-radius:var(--radius-xl);padding:var(--space-24) var(--space-24) var(--space-28);display:flex;flex-direction:column;gap:var(--space-20)}
+  .tile{width:52px;height:52px;border-radius:var(--radius-lg);background:var(--bg-panel);color:var(--text-brand);display:grid;place-items:center}
+  .principles div{display:flex;flex-direction:column;gap:var(--space-8)}
+  @media (max-width:1279px){
+    .photo{width:44%;height:auto;aspect-ratio:588/564}
+    .principles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:1023px){
+    .story{flex-direction:column;align-items:stretch;gap:var(--space-32)}
+    .photo{width:100%}
+  }
+  @media (max-width:767px){
+    .inner{padding-block:var(--space-24) var(--space-32)}
+    .text{gap:var(--space-16)}
+    .story{gap:var(--space-24)}
+    .photo{aspect-ratio:350/280}
+  }
+</style>

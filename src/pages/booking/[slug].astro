@@ -1,0 +1,255 @@
+---
+// Запис, крок «Ваші дані» (/booking/:slug?session=N). Флоу: наш екран → віджет Altegio з оплатою → /booking/confirmed.
+// Поки settings.altegioWidget порожній, форма працює як заявка: дані йдуть у Netlify Forms ("booking"),
+// адміністратор узгоджує час і оплату. З віджетом кнопка веде до оплати, а Altegio повертає на /booking/confirmed.
+import Base from '../../layouts/Base.astro';
+import Logo from '../../components/Logo.astro';
+import Button from '../../components/Button.astro';
+import Icon from '../../components/Icon.astro';
+import { type Specialist, specialists, toUAH, initials, firstSession } from '../../data/specialists';
+import { settings, uah } from '../../data/site';
+
+export const getStaticPaths = () => specialists.map((sp) => ({ params: { slug: sp.slug }, props: { sp } }));
+interface Props { sp: Specialist }
+const { sp } = Astro.props;
+
+const sessions = sp.sessions.map((s) => ({ label: s.type + (s.first ? ' сесія' : ''), minutes: s.minutes, price: uah(toUAH(s)), first: !!s.first }));
+const start = sp.sessions.indexOf(firstSession(sp));
+const cur = sessions[start];
+const city = sp.offline ? (/дніпро/i.test(sp.offline) ? 'Дніпро' : 'Київ') : '';
+const formats = [
+  ...(sp.online ? [{ value: 'Відео', sub: 'Google Meet', summary: 'Онлайн · відео', note: 'Google Meet, посилання — у листі' }, { value: 'Аудіо', sub: 'Без камери', summary: 'Онлайн · аудіо', note: 'Google Meet без камери, посилання — у листі' }] : []),
+  ...(sp.offline ? [{ value: 'Офлайн', sub: `Кабінет · ${city}`, summary: `Офлайн · ${city}`, note: 'Адресу надішлемо в листі-підтвердженні' }] : []),
+];
+const slot = sp.slots?.[0];
+const widget = settings.altegioWidget;
+const steps = slot
+  ? [{ label: 'Час', state: 'done' }, { label: 'Ваші дані', state: 'current' }, { label: 'Оплата', state: 'next' }]
+  : [{ label: 'Фахівець', state: 'done' }, { label: 'Ваші дані', state: 'current' }, { label: 'Час і оплата', state: 'next' }];
+const cta = widget ? 'Перейти до оплати' : 'Надіслати заявку';
+const profile = `/specialists/${sp.slug}`;
+const meta = { specialist: sp.name, role: sp.role.split(' · ')[0], initials: initials(sp.name), photo: sp.photo ?? '', sessions, formats, widget };
+---
+<Base title={`Запис: ${sp.name}`} sticky={false} chrome={false} noindex>
+  <header class="top on-brand">
+    <div class="container bar">
+      <Logo size={40} />
+      <ol class="steps" aria-label="Кроки запису">
+        {steps.map((s) => (
+          <li class={`step step--${s.state}`} aria-current={s.state === 'current' ? 'step' : undefined}>
+            <span class="dot">{s.state === 'done' && <Icon name="check" size={14} />}</span><span>{s.label}</span>
+          </li>
+        ))}
+      </ol>
+      <p class="secure"><Icon name="lock" size={18} /><span>Захищене з’єднання</span></p>
+    </div>
+  </header>
+
+  <div class="container body" data-booking data-meta={JSON.stringify(meta)} data-session={start}>
+    <div class="main">
+      <a class="back" href={profile}><Icon name="arrow-left" size={18} /><span>Назад до профілю</span></a>
+
+      <div data-step-form>
+        <h1 class="t-h2 c-brand">Ваші дані</h1>
+        <p class="t-body-l c-secondary lead">Лише для зв’язку щодо сесії. Без реєстрації, нікому не передаємо.</p>
+        <form class="form" name="booking" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-form>
+          <input type="hidden" name="form-name" value="booking" />
+          <input type="hidden" name="specialist" value={sp.name} />
+          <input type="hidden" name="session" value={`${cur.label} · ${cur.minutes} хв`} data-f-session />
+          <input type="hidden" name="price" value={cur.price} data-f-price />
+          <p class="sr-only" aria-hidden="true"><label>Не заповнюйте: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+
+          <div class="field"><label for="b-name">Як до вас звертатися</label><input class="input" id="b-name" name="name" autocomplete="given-name" required /></div>
+          <div class="row">
+            <div class="field">
+              <label for="b-email">Email</label>
+              <input class="input" id="b-email" name="email" type="email" autocomplete="email" required aria-describedby="b-email-hint" />
+              <p class="hint" id="b-email-hint">Сюди прийде підтвердження і посилання на зустріч</p>
+            </div>
+            <div class="field">
+              <label for="b-contact">Telegram або телефон <small>необов’язково</small></label>
+              <input class="input" id="b-contact" name="contact" placeholder="@username або +380…" autocomplete="tel" aria-describedby="b-contact-hint" />
+              <p class="hint" id="b-contact-hint">Для нагадувань, якщо зручніше в месенджері</p>
+            </div>
+          </div>
+          <fieldset class="choice">
+            <legend class="field-label">Формат сесії</legend>
+            <div class="options">
+              {formats.map((f, i) => (
+                <label class="option">
+                  <input type="radio" class="sr-only" name="format" value={f.value} checked={i === 0} data-i={i} />
+                  <span class="radio" aria-hidden="true"></span>
+                  <span class="ot"><b>{f.value}</b><small>{f.sub}</small></span>
+                </label>
+              ))}
+            </div>
+            {sp.offline && <p class="hint">Адресу кабінету надішлемо в листі-підтвердженні.</p>}
+          </fieldset>
+          <div class="field">
+            <label for="b-request">З чим хочете прийти <small>необов’язково</small></label>
+            <textarea class="input" id="b-request" name="request" placeholder="Кілька слів, якщо хочете — це допоможе фахівцю підготуватися" aria-describedby="b-request-hint"></textarea>
+            <p class="hint" id="b-request-hint">Можна не заповнювати: на першій сесії все розберете разом.</p>
+          </div>
+          <label class="consent">
+            <input type="checkbox" class="sr-only" name="consent" value="так" required />
+            <span class="box" aria-hidden="true"><Icon name="check" size={16} /></span>
+            <span class="t-body-s c-secondary">Погоджуюсь з <a href="/terms" target="_blank">умовами оплати та скасування</a> і <a href="/privacy" target="_blank">політикою конфіденційності</a></span>
+          </label>
+          <p class="form-error" data-error hidden role="alert">Не вдалося надіслати. Спробуйте ще раз або <a href={settings.telegram} target="_blank" rel="noopener">напишіть нам у Telegram</a> — запишемо вручну.</p>
+          <div><Button type="submit" size="l"><span data-cta>{cta} · {cur.price}</span></Button></div>
+        </form>
+      </div>
+
+      <div class="done" data-step-done hidden>
+        <span class="ok"><Icon name="check" size={30} /></span>
+        <h1 class="t-h2 c-brand" tabindex="-1" data-done-title>Заявку надіслано</h1>
+        <p class="t-body-l c-secondary">Адміністратор центру напише вам<span data-done-where></span>, щоб узгодити час і оплату. Оплачуєте лише одну сесію — без передоплат за наступні.</p>
+        <div class="done-actions"><Button href={profile}>Повернутись до профілю</Button><a class="u" href="/">На головну</a></div>
+      </div>
+    </div>
+
+    <aside class="summary" aria-label="Підсумок запису">
+      <div class="who">
+        <span class="ava">{sp.photo ? <img src={sp.photo} alt="" width="56" height="56" /> : <span aria-hidden="true">{initials(sp.name)}</span>}</span>
+        <p><b class="t-body-l w-500">{sp.name}</b><span class="t-body-s c-secondary">{sp.role.split(' · ')[0]}</span></p>
+      </div>
+      <ul class="rows">
+        <li><Icon name="calendar" size={20} /><p><b>{slot ? `${slot.day}, ${slot.time}` : 'Час оберете на наступному кроці'}</b><span>{slot ? 'за Києвом' : sp.nearest ? `Найближче вільне: ${sp.nearest}` : 'Покажемо вільні години фахівця'}</span></p></li>
+        <li><Icon name="video" size={20} /><p><b data-s-format>{formats[0].summary}</b><span data-s-format-note>{formats[0].note}</span></p></li>
+        <li><Icon name="clock" size={20} /><p><b data-s-session>{cur.label} · {cur.minutes} хв</b><span data-s-session-note hidden={!cur.first}>Перша зустріч — щоб розібратись у запиті</span></p></li>
+      </ul>
+      <p class="total"><span class="c-secondary">До сплати</span><b class="t-h4 w-600 c-brand" data-s-price>{cur.price}</b></p>
+      <p class="note t-body-s c-secondary"><Icon name="calendar" size={16} /><span>Безкоштовне скасування або перенесення — за 24 год до сесії</span></p>
+      <a class="u t-body-s" href={`${profile}#book`}>Змінити тип сесії</a>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .top{background:var(--bg-brand)}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-24);min-height:76px}
+  .bar :global(.logo){gap:var(--space-12)}
+  .bar :global(.logo .name){font-weight:500}
+  .steps{display:flex;align-items:center;gap:var(--space-12)}
+  .step{display:flex;align-items:center;gap:var(--space-8);font-size:14px;line-height:20px;font-weight:500;color:var(--text-on-brand)}
+  .step + .step::before{content:'';width:32px;height:1.5px;margin-right:var(--space-4);background:var(--border-on-brand-strong)}
+  .step--done + .step::before{background:var(--bg-accent-on-brand)}
+  .dot{width:22px;height:22px;flex:none;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--border-on-brand-strong)}
+  .step--done .dot{background:var(--bg-accent-on-brand);border-color:transparent;color:var(--text-brand)}
+  .step--current .dot{border-color:var(--bg-accent-on-brand)}
+  .step--current .dot::after{content:'';width:10px;height:10px;border-radius:50%;background:var(--bg-accent-on-brand)}
+  .step--next{color:var(--text-on-brand-muted)}
+  .secure{display:flex;align-items:center;gap:var(--space-8);font-size:14px;line-height:20px;color:var(--text-on-brand-muted)}
+
+  .body{display:flex;gap:var(--space-80);align-items:flex-start;padding-block:var(--space-48) var(--space-120)}
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-32)}
+  .main > div{display:flex;flex-direction:column;gap:var(--space-32)}
+  .main > div[hidden]{display:none}
+  .back{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;font-weight:500;color:var(--text-secondary)}
+  .back:hover span{text-decoration:underline;text-underline-offset:3px}
+  .form{display:flex;flex-direction:column;gap:var(--space-24)}
+  .row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-16)}
+  .choice{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:10px}
+  .choice legend{padding:0;float:left;width:100%}
+  .options{display:flex;gap:10px;clear:both}
+  .option{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:14px var(--space-16);border-radius:var(--radius-lg);background:var(--bg-surface);border:1px solid var(--border-default);cursor:pointer}
+  .option:hover{border-color:var(--border-strong)}
+  .option:has(:checked){background:var(--bg-panel);border-color:var(--border-brand);box-shadow:0 0 0 .5px var(--border-brand)}
+  .option:has(:focus-visible),.consent:has(:focus-visible) .box{outline:2px solid var(--border-brand);outline-offset:2px}
+  .radio{width:20px;height:20px;flex:none;border-radius:50%;background:var(--bg-surface);border:1.5px solid var(--border-strong);display:grid;place-items:center}
+  .option:has(:checked) .radio{border-color:var(--border-brand);border-width:2px}
+  .option:has(:checked) .radio::after{content:'';width:10px;height:10px;border-radius:50%;background:var(--bg-brand)}
+  .ot{display:flex;flex-direction:column;min-width:0}
+  .ot b{font-weight:500}
+  .ot small{font-size:14px;line-height:20px;color:var(--text-secondary)}
+  .consent{display:flex;gap:var(--space-12);align-items:flex-start;cursor:pointer}
+  .box{width:22px;height:22px;flex:none;border-radius:var(--radius-md);background:var(--bg-surface);border:1.5px solid var(--border-strong);color:transparent;display:grid;place-items:center}
+  .consent:has(:checked) .box{background:var(--bg-brand);border-color:var(--bg-brand);color:var(--text-on-brand)}
+  .consent a,.u{color:var(--text-brand);font-weight:500;text-decoration:underline;text-underline-offset:3px}
+  .done{align-items:flex-start;gap:var(--space-20) !important}
+  .done h1:focus{outline:none}
+  .ok{width:64px;height:64px;border-radius:50%;background:var(--bg-brand);color:var(--text-on-brand);display:grid;place-items:center}
+  .done-actions{display:flex;align-items:center;gap:var(--space-24);flex-wrap:wrap;margin-top:var(--space-12)}
+
+  .summary{width:400px;flex:none;position:sticky;top:var(--space-24);background:var(--bg-surface);border-radius:var(--radius-xl);padding:var(--space-24);display:flex;flex-direction:column;gap:var(--space-16)}
+  .who{display:flex;align-items:center;gap:var(--space-12)}
+  .who p{display:flex;flex-direction:column;gap:var(--space-2);min-width:0}
+  .ava{width:56px;height:56px;flex:none;border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-placeholder);display:grid;place-items:center;color:var(--text-brand);font-size:18px;font-weight:600}
+  .ava img{width:100%;height:100%;object-fit:cover}
+  .rows li{display:flex;gap:var(--space-12);align-items:flex-start;padding-block:var(--space-12);border-top:1px solid var(--border-subtle)}
+  .rows :global(svg){margin-top:2px}
+  .rows p{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-2)}
+  .rows b{font-weight:500}
+  .rows span{font-size:14px;line-height:20px;color:var(--text-secondary)}
+  .rows span[hidden]{display:none}
+  .total{display:flex;align-items:center;justify-content:space-between;padding-top:var(--space-16);border-top:1px solid var(--border-default)}
+  .note{display:flex;gap:var(--space-8);align-items:flex-start}
+  .note :global(svg){margin-top:2px}
+  .summary .u{align-self:flex-start}
+
+  @media (max-width:1279px){.body{gap:var(--space-40)}.summary{width:340px}}
+  @media (max-width:1023px){
+    .steps span:not(.dot){display:none}
+    .step--current span:not(.dot){display:inline}
+    .secure span{display:none}
+    .body{flex-direction:column-reverse;align-items:stretch;gap:var(--space-32);padding-block:var(--space-24) var(--space-64)}
+    .summary{width:auto;position:static}
+  }
+  @media (max-width:767px){
+    .bar{min-height:68px;gap:var(--space-12)}
+    .bar :global(.logo .name){display:none}
+    .step + .step::before{width:16px}
+    .main,.main > div{gap:var(--space-20)}
+    .lead{margin-top:calc(-1 * var(--space-8))}
+    .row{grid-template-columns:minmax(0,1fr);gap:var(--space-24)}
+    .options{flex-direction:column}
+    .form :global(.btn){width:100%;white-space:normal;height:auto;min-height:56px}
+    .summary{padding:var(--space-20)}
+  }
+</style>
+
+<script>
+  import { submitForm } from '../../lib/forms';
+  const root = document.querySelector<HTMLElement>('[data-booking]');
+  if (root) {
+    const meta = JSON.parse(root.dataset.meta!);
+    const $ = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const form = $<HTMLFormElement>('[data-form]');
+    // Тип сесії з ?session=N (обраний у профілі)
+    const q = Number(new URLSearchParams(location.search).get('session'));
+    const idx = Number.isInteger(q) && meta.sessions[q] ? q : Number(root.dataset.session);
+    const s = meta.sessions[idx];
+    const cta = meta.widget ? 'Перейти до оплати' : 'Надіслати заявку';
+    $('[data-s-session]').textContent = `${s.label} · ${s.minutes} хв`;
+    $('[data-s-session-note]').hidden = !s.first;
+    $('[data-s-price]').textContent = s.price;
+    $('[data-cta]').textContent = `${cta} · ${s.price}`;
+    $<HTMLInputElement>('[data-f-session]').value = `${s.label} · ${s.minutes} хв`;
+    $<HTMLInputElement>('[data-f-price]').value = s.price;
+    // Формат → підсумок
+    const format = () => meta.formats[Number(form.querySelector<HTMLInputElement>('input[name=format]:checked')?.dataset.i ?? 0)];
+    form.addEventListener('change', (e) => {
+      if ((e.target as HTMLInputElement).name !== 'format') return;
+      $('[data-s-format]').textContent = format().summary; $('[data-s-format-note]').textContent = format().note;
+    });
+
+    const error = $('[data-error]'), submit = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submit.disabled = true; error.hidden = true;
+      const data = new FormData(form);
+      try {
+        await submitForm(form);
+        // Для сторінки «Запис підтверджено»: показати підсумок після повернення з оплати
+        try {
+          sessionStorage.setItem('neo-booking', JSON.stringify({ specialist: meta.specialist, role: meta.role, initials: meta.initials, photo: meta.photo, session: `${s.label} · ${s.minutes} хв`, price: s.price, format: format().summary, formatNote: format().note, email: data.get('email') }));
+        } catch { /* приватний режим — підсумок просто не покажемо */ }
+        if (meta.widget) { location.href = meta.widget; return; }
+        $('[data-done-where]').textContent = data.get('email') ? ` на ${data.get('email')}` : '';
+        $('[data-step-form]').hidden = true; $('[data-step-done]').hidden = false;
+        $('[data-done-title]').focus(); window.scrollTo({ top: 0 });
+      } catch { error.hidden = false; }
+      submit.disabled = false;
+    });
+  }
+</script>

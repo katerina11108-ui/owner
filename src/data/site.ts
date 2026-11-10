@@ -13,6 +13,9 @@ export const settings = {
   footerAbout: 'Психіатри, психотерапевти й психологи в одній команді. Онлайн або в офісах у Києві.',
   email: 'hello@newpsychiatry.ua', // TODO: новий домен
   telegram: 'https://t.me/', // TODO: посилання на менеджера
+  // Посилання на віджет Altegio. Порожнє → форма запису працює як заявка (адміністратор узгоджує час і оплату).
+  // Коли буде — кнопка стане «Перейти до оплати» й вестиме у віджет; redirect URL після оплати: /booking/confirmed
+  altegioWidget: '', // TODO: Altegio
   instagram: 'https://www.instagram.com/new__psychiatry/',
   youtube: 'https://www.youtube.com/',
   license: { holder: 'ТОВ «НПО НЕОІАТРІЯ»', number: '№ 1234', date: '12.03.2021', registry: 'https://moz.gov.ua/' }, // TODO: реальні дані
