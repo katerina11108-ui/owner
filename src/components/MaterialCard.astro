@@ -1,0 +1,41 @@
+---
+// Картка матеріалу: темна обкладинка з типом і тривалістю, назва, опис, ціна й кнопка. Подкаст — безкоштовно, веде на YouTube.
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { type Material, kindLabel } from '../data/materials';
+import { settings, uah } from '../data/site';
+interface Props { m: Material }
+const { m } = Astro.props;
+const free = m.price == null;
+const href = m.href || (m.kind === 'podcast' ? settings.youtube : settings.telegram);
+---
+<article class="card" data-kind={m.kind}>
+  <div class="cover on-brand">
+    {m.cover && <img src={m.cover} alt="" loading="lazy" />}
+    <p class="kind"><span class="t-h4 w-600">{kindLabel[m.kind]}</span>{m.kind === 'podcast' && <span class="play"><Icon name="play" size={14} /></span>}</p>
+    <p class="t-body-s meta">{m.meta}</p>
+  </div>
+  <div class="tx">
+    <h3 class="t-h5 w-600">{m.title}</h3>
+    <p class="t-body-s c-secondary">{m.text}</p>
+  </div>
+  <div class="bottom">
+    <p class:list={['t-body-l w-600', { 'c-brand-muted': free }]}>{free ? 'Безкоштовно' : uah(m.price!)}</p>
+    <Button href={href} size="s" variant={free ? 'secondary' : 'primary'} external aria-label={`${free ? 'Дивитись на YouTube' : 'Купити'}: ${m.title}`}>{free ? 'Дивитись на YouTube' : 'Купити'}</Button>
+  </div>
+</article>
+<style>
+  .card{display:flex;flex-direction:column;gap:var(--space-16);min-width:0}
+  .card[hidden]{display:none}
+  .cover{position:relative;height:192px;border-radius:var(--radius-xl);overflow:hidden;background:var(--bg-inverse);padding:var(--space-20);display:flex;flex-direction:column;justify-content:space-between;color:var(--text-on-brand)}
+  .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55}
+  .kind,.meta{position:relative}
+  .kind{display:flex;align-items:center;justify-content:space-between}
+  .meta{color:var(--text-on-brand-secondary)}
+  .play{width:36px;height:36px;border-radius:50%;background:var(--bg-on-brand-surface);color:var(--text-brand);display:grid;place-items:center}
+  .play :global(svg){fill:currentColor;margin-left:2px}
+  .tx{display:flex;flex-direction:column;gap:var(--space-8);flex:1}
+  .tx h3,.tx p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .bottom{display:flex;align-items:center;justify-content:space-between;gap:var(--space-12)}
+  .bottom :global(.btn--secondary){background:var(--bg-muted)}
+</style>

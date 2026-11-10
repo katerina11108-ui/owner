@@ -1,0 +1,40 @@
+---
+// Підписка на нові статті. Netlify Forms ("newsletter"). TODO: підключити сервіс розсилки, коли центр його обере.
+import Button from './Button.astro';
+---
+<section class="nl" data-newsletter>
+  <div class="tx"><h2 class="t-h4 w-600">Нові статті — на пошту</h2><p class="c-secondary" data-nl-text>Раз на два тижні. Без спаму.</p></div>
+  <form name="newsletter" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+    <input type="hidden" name="form-name" value="newsletter" />
+    <p class="sr-only" aria-hidden="true"><label>Не заповнюйте: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+    <label class="sr-only" for="nl-email">Email</label>
+    <input id="nl-email" name="email" type="email" required placeholder="your@email.com" autocomplete="email" />
+    <Button type="submit">Підписатись</Button>
+  </form>
+</section>
+<style>
+  .nl{display:flex;gap:var(--space-32);align-items:center;background:var(--bg-panel);border-radius:var(--radius-xl);padding:var(--space-32) var(--space-40)}
+  .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-4)}
+  form{display:flex;gap:var(--space-12);align-items:center;flex:none}
+  form[hidden]{display:none}
+  input[type=email]{width:300px;height:52px;padding-inline:var(--space-20);border-radius:var(--radius-full);border:1px solid transparent;background:var(--bg-surface);font:inherit;color:var(--text-primary)}
+  input[type=email]::placeholder{color:var(--text-tertiary);opacity:1}
+  input[type=email]:focus{outline:none;border-color:var(--border-brand)}
+  @media (max-width:1023px){
+    .nl{flex-direction:column;align-items:stretch;gap:var(--space-20);padding:var(--space-24)}
+    form{flex-direction:column;align-items:stretch}
+    input[type=email]{width:100%}
+  }
+</style>
+<script>
+  import { submitForm } from '../lib/forms';
+  document.querySelectorAll<HTMLElement>('[data-newsletter]').forEach((box) => {
+    const form = box.querySelector('form')!, text = box.querySelector<HTMLElement>('[data-nl-text]')!, btn = form.querySelector('button')!;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault(); btn.disabled = true;
+      try { await submitForm(form); form.hidden = true; text.textContent = 'Дякуємо! Ви підписані — наступна добірка прийде на пошту.'; text.setAttribute('role', 'status'); }
+      catch { text.textContent = 'Не вдалося підписати. Спробуйте ще раз трохи пізніше.'; text.setAttribute('role', 'alert'); }
+      btn.disabled = false;
+    });
+  });
+</script>

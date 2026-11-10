@@ -1,0 +1,93 @@
+---
+// Події та матеріали (/events): найближчі події, подкаст (#podcast), лекції / курси / PDF (#materials).
+// Дані: events — src/data/content.ts; матеріали й подкаст — src/data/materials.ts.
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import EventCard from '../components/EventCard.astro';
+import MaterialCard from '../components/MaterialCard.astro';
+import FilterChips from '../components/FilterChips.astro';
+import CTAPrefooter from '../components/CTAPrefooter.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import { events } from '../data/content';
+import { materials, podcast, kindFilter, type MaterialKind } from '../data/materials';
+import { settings } from '../data/site';
+const kinds = (Object.keys(kindFilter) as MaterialKind[]).filter((k) => materials.some((m) => m.kind === k));
+---
+<Base title="Події та матеріали" description="Прямі ефіри, терапевтичні групи, подкаст, лекції, курси й воркбуки від фахівців центру Neoiatria.">
+  <PageHero crumbs={[{ label: 'Події та матеріали' }]} title="Події, лекції та матеріали" lead="Прямі ефіри й групи, подкаст на YouTube — безкоштовно. Лекції, курси й PDF — платні: оплата карткою, доступ у Telegram одразу після оплати." />
+  <div class="container wrap">
+    {events.length > 0 && (
+      <section class="block" id="upcoming">
+        <div class="head">
+          <div><h2 class="t-h3">Найближчі події</h2><p class="c-secondary">Прямі ефіри, групи й зустрічі. Більшість — безкоштовні.</p></div>
+          <a class="link" href={settings.telegram} target="_blank" rel="noopener"><span>Розклад — щомісяця в Telegram</span><Icon name="arrow-up-right" size={17} /></a>
+        </div>
+        <div class="events m-scroll" style="--m-card:300px">{events.map((e) => <EventCard e={e} />)}</div>
+      </section>
+    )}
+
+    <section class="podcast" id="podcast">
+      <div class="p-text">
+        <p class="w-500 c-brand">{podcast.eyebrow}</p>
+        <h2 class="t-h1">{podcast.title}</h2>
+        <p class="t-body-l c-brand">{podcast.tagline}</p>
+      </div>
+      <div class="p-list">
+        <ul>
+          {podcast.episodes.map((ep) => (
+            <li><a href={ep.href || settings.youtube} target="_blank" rel="noopener">
+              <span class="thumb">{ep.thumb && <img src={ep.thumb} alt="" loading="lazy" />}<span class="play"><Icon name="play" size={12} /></span></span>
+              <span class="t-body-l w-500 ep">{ep.title}</span>
+              <span class="t-body-s c-brand">{ep.minutes} хв</span>
+            </a></li>
+          ))}
+        </ul>
+        <div class="p-btn"><Button href={settings.youtube} external>Усі випуски на YouTube</Button></div>
+      </div>
+    </section>
+
+    <section class="block" id="materials" aria-label="Матеріали">
+      <FilterChips target="materials-grid" label="Тип матеріалу" options={kinds.map((k) => ({ value: k, label: kindFilter[k] }))} />
+      <div class="grid" id="materials-grid">{materials.map((m) => <MaterialCard m={m} />)}</div>
+    </section>
+  </div>
+  <CTAPrefooter />
+</Base>
+<style>
+  .wrap{display:flex;flex-direction:column;gap:var(--space-56);padding-top:var(--space-64)}
+  .block{display:flex;flex-direction:column;gap:var(--space-24);scroll-margin-top:var(--space-24)}
+  .head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-24);flex-wrap:wrap}
+  .head div{display:flex;flex-direction:column;gap:var(--space-8)}
+  .events{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-24)}
+  .podcast{display:flex;gap:var(--space-64);align-items:flex-start;background:var(--bg-muted);border-radius:var(--radius-2xl);padding:var(--space-56);scroll-margin-top:var(--space-24)}
+  .p-text{width:420px;flex:none;display:flex;flex-direction:column;gap:var(--space-16)}
+  .p-list{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-12)}
+  .p-btn{display:flex}
+  .p-list li + li{border-top:1px solid var(--sage-200)}
+  .p-list a{display:flex;align-items:center;gap:var(--space-16);padding-block:var(--space-16)}
+  .p-list a:hover .ep{text-decoration:underline;text-underline-offset:3px}
+  .thumb{position:relative;width:112px;height:63px;flex:none;border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-brand);display:grid;place-items:center}
+  .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .play{position:relative;width:28px;height:28px;border-radius:50%;background:var(--bg-on-brand-surface);color:var(--text-brand);display:grid;place-items:center}
+  .play :global(svg){fill:currentColor;margin-left:2px}
+  .ep{flex:1;min-width:0}
+  #materials{gap:var(--space-28)}
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-48) var(--space-24)}
+  @media (max-width:1023px){
+    .events{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .podcast{flex-direction:column;gap:var(--space-24);padding:var(--space-32)}
+    .p-text{width:auto}
+    .p-list{width:100%}
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:767px){
+    .wrap{gap:var(--space-40);padding-top:var(--space-24)}
+    .podcast{padding:var(--space-20)}
+    .thumb{width:80px;height:45px}
+    .ep{font-size:16px;line-height:24px}
+    .p-btn :global(.btn){flex:1}
+    #materials{gap:var(--space-20)}
+    .grid{grid-template-columns:minmax(0,1fr);gap:var(--space-32)}
+  }
+</style>

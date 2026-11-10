@@ -1,0 +1,28 @@
+---
+// Чипи-фільтр над сіткою карток. Фільтрує елементи [data-kind] усередині контейнера з id = target.
+interface Props { target: string; options: { value: string; label: string }[]; label: string }
+const { target, options, label } = Astro.props;
+---
+<div class="chips" role="group" aria-label={label} data-chips-for={target}>
+  <button type="button" data-value="" aria-pressed="true">Всі</button>
+  {options.map((o) => <button type="button" data-value={o.value} aria-pressed="false">{o.label}</button>)}
+</div>
+<style>
+  .chips{display:flex;gap:var(--space-8);flex-wrap:wrap}
+  button{height:40px;padding-inline:var(--space-16);border-radius:var(--radius-full);background:var(--bg-muted);font-size:14px;line-height:20px;font-weight:500;color:var(--text-primary);white-space:nowrap;transition:background-color .15s,color .15s}
+  button:hover{background:var(--bg-panel)}
+  button[aria-pressed='true']{background:var(--bg-brand);color:var(--text-on-brand)}
+  @media (max-width:767px){.chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1 * var(--gutter));padding-inline:var(--gutter)}.chips::-webkit-scrollbar{display:none}}
+</style>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-chips-for]').forEach((chips) => {
+    const grid = document.getElementById(chips.dataset.chipsFor!);
+    if (!grid) return;
+    chips.addEventListener('click', (e) => {
+      const b = (e.target as Element).closest<HTMLButtonElement>('button');
+      if (!b) return;
+      chips.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      grid.querySelectorAll<HTMLElement>('[data-kind]').forEach((el) => (el.hidden = !!b.dataset.value && el.dataset.kind !== b.dataset.value));
+    });
+  });
+</script>

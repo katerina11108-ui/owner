@@ -1,0 +1,77 @@
+---
+// Стаття (/blog/:slug). Тіло — масив блоків (lead, h2, p, quote) з CMS; у Sanity це буде Portable Text.
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import CTAPrefooter from '../../components/CTAPrefooter.astro';
+import Button from '../../components/Button.astro';
+import { type Article, articles, articleDate, related } from '../../data/blog';
+import { findSpecialist, initials } from '../../data/specialists';
+export const getStaticPaths = () => articles.map((a) => ({ params: { slug: a.slug }, props: { a } }));
+interface Props { a: Article }
+const { a } = Astro.props;
+const sp = a.author?.specialist ? findSpecialist(a.author.specialist) : undefined;
+const more = related(a);
+---
+<Base title={a.title} description={a.excerpt}>
+  <PageHero narrow crumbs={[{ label: 'Блог', href: '/blog' }, { label: a.category }]} title={a.title}>
+    <p class="eyebrow" slot="eyebrow"><span class="pill">{a.category}</span><span class="w-500 c-on-brand-accent">{a.minutes} хв читання</span></p>
+    <div class="author">
+      {a.author && <span class="ava">{sp?.photo ? <img src={sp.photo} alt="" width="40" height="40" /> : <span aria-hidden="true">{initials(a.author.name)}</span>}</span>}
+      <p>
+        {a.author && (sp ? <a class="w-500 c-on-brand" href={`/specialists/${sp.slug}`}>{a.author.name}</a> : <span class="w-500 c-on-brand">{a.author.name}</span>)}
+        <span class="t-body-s c-on-brand-2">{[a.author?.role, articleDate(a.date, true)].filter(Boolean).join(' · ')}</span>
+      </p>
+    </div>
+  </PageHero>
+
+  <article class="container article">
+    {a.cover && <div class="cover"><img src={a.cover} alt="" /></div>}
+    <div class="body">
+      {a.body ? a.body.map((b) =>
+        b.type === 'lead' ? <p class="lead t-body-l w-500">{b.text}</p>
+        : b.type === 'h2' ? <h2 class="t-h5 w-600">{b.text}</h2>
+        : b.type === 'quote' ? <blockquote class="w-500 c-brand">{b.text}</blockquote>
+        : <p class="c-secondary">{b.text}</p>
+      ) : <><p class="lead t-body-l w-500">{a.excerpt}</p><p class="c-tertiary">Текст статті готується.</p></>}
+    </div>
+    <aside class="cta">
+      <div><p class="w-600">Готові зробити перший крок?</p><p class="t-body-s c-tertiary">Знайдіть свого фахівця серед команди центру.</p></div>
+      <Button href="/specialists">Знайти спеціаліста</Button>
+    </aside>
+    {more.length > 0 && (
+      <section class="more">
+        <h2 class="t-body-s w-600 c-tertiary">Читайте також</h2>
+        <div class="grid">{more.map((x) => <ArticleCard a={x} />)}</div>
+      </section>
+    )}
+  </article>
+  <CTAPrefooter />
+</Base>
+<style>
+  .eyebrow{display:flex;align-items:center;gap:var(--space-12)}
+  .pill{padding:var(--space-8) var(--space-12);border-radius:var(--radius-full);background:var(--bg-brand-hover);font-size:14px;line-height:20px;font-weight:500;color:var(--text-on-brand)}
+  .author{display:flex;align-items:center;gap:var(--space-12);padding-top:var(--space-8)}
+  .author p{display:flex;flex-direction:column}
+  .author a:hover{text-decoration:underline;text-underline-offset:3px}
+  .ava{width:40px;height:40px;flex:none;border-radius:50%;overflow:hidden;background:var(--bg-brand-hover);display:grid;place-items:center;color:var(--text-on-brand-accent);font-size:14px;font-weight:600}
+  .ava img{width:100%;height:100%;object-fit:cover}
+  .article{max-width:calc(768px + 2 * var(--gutter));padding-block:var(--space-64) var(--space-56);display:flex;flex-direction:column}
+  .cover{aspect-ratio:768/288;border-radius:var(--radius-2xl);overflow:hidden;background:var(--bg-panel);margin-bottom:var(--space-40)}
+  .cover img{width:100%;height:100%;object-fit:cover}
+  .body{display:flex;flex-direction:column}
+  .body h2{margin-top:var(--space-40)}
+  .body p + p,.body h2 + p,.body blockquote + p{margin-top:var(--space-20)}
+  .body blockquote{margin:var(--space-24) 0 0;padding:var(--space-4) 0 var(--space-4) var(--space-20);border-left:1.5px solid var(--border-brand)}
+  .cta{margin-top:var(--space-48);display:flex;align-items:center;gap:var(--space-20);background:var(--bg-muted);border-radius:var(--radius-xl);padding:var(--space-28) var(--space-24)}
+  .cta div{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--space-4)}
+  .more{margin-top:var(--space-48);padding-top:var(--space-32);border-top:1px solid var(--border-default);display:flex;flex-direction:column;gap:var(--space-20)}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-16)}
+  @media (max-width:767px){
+    .article{padding-block:var(--space-24) var(--space-40)}
+    .cover{aspect-ratio:350/200;margin-bottom:var(--space-24)}
+    .body h2{margin-top:var(--space-32)}
+    .cta{flex-direction:column;align-items:stretch;padding:var(--space-20)}
+    .grid{grid-template-columns:minmax(0,1fr);gap:var(--space-32)}
+  }
+</style>

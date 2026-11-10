@@ -1,0 +1,26 @@
+---
+// Картка статті: обкладинка з категорією, заголовок і опис (по 2 рядки), автор · дата · час читання.
+import { type Article, articleMeta } from '../data/blog';
+interface Props { a: Article }
+const { a } = Astro.props;
+---
+<article class="card" data-kind={a.category}>
+  <div class="cover">{a.cover && <img src={a.cover} alt="" loading="lazy" />}<span class="cat">{a.category}</span></div>
+  <div class="tx">
+    <h3 class="t-h5 w-600"><a href={`/blog/${a.slug}`}>{a.title}</a></h3>
+    <p class="t-body-s c-secondary">{a.excerpt}</p>
+  </div>
+  <p class="t-body-s c-tertiary">{articleMeta(a)}</p>
+</article>
+<style>
+  .card{position:relative;display:flex;flex-direction:column;gap:var(--space-16);min-width:0}
+  .card[hidden]{display:none}
+  .cover{position:relative;aspect-ratio:384/238;border-radius:var(--radius-xl);overflow:hidden;background:var(--bg-placeholder);padding:var(--space-12)}
+  .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s}
+  .card:hover .cover img{transform:scale(1.03)}
+  .cat{position:relative;display:inline-block;padding:var(--space-4) var(--space-12);border-radius:var(--radius-full);background:var(--bg-surface);font-size:12px;line-height:16px;font-weight:500}
+  .tx{display:flex;flex-direction:column;gap:var(--space-8)}
+  .tx h3,.tx p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  h3 a::after{content:'';position:absolute;inset:0}
+  .card:hover h3 a{text-decoration:underline;text-underline-offset:3px}
+</style>

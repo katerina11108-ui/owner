@@ -1,0 +1,26 @@
+---
+// Перший екран внутрішніх сторінок: крихти, H1, підзаголовок. narrow — вузька колонка (стаття).
+import Breadcrumbs from './Breadcrumbs.astro';
+interface Props { crumbs: { label: string; href?: string }[]; title: string; lead?: string; narrow?: boolean }
+const { crumbs, title, lead, narrow = false } = Astro.props;
+---
+<section class="hero on-brand">
+  <div class:list={['container inner', { narrow }]}>
+    <Breadcrumbs items={[{ label: 'Головна', href: '/' }, ...crumbs]} />
+    <div class="title" data-hero-ctas>
+      <slot name="eyebrow" />
+      <h1 class="t-h1 c-on-brand">{title}</h1>
+      {lead && <p class="t-body-l c-on-brand-2">{lead}</p>}
+      <slot />
+    </div>
+  </div>
+</section>
+<style>
+  .hero{background:var(--bg-brand);border-radius:0 0 var(--radius-2xl) var(--radius-2xl)}
+  .inner{display:flex;flex-direction:column;gap:var(--space-24);padding-block:var(--space-32) var(--space-64)}
+  .narrow{max-width:calc(768px + 2 * var(--gutter))}
+  .title{display:flex;flex-direction:column;gap:var(--space-12)}
+  .title h1{max-width:760px}
+  .title p{max-width:640px}
+  @media (max-width:767px){.inner{gap:var(--space-16);padding-block:var(--space-20) var(--space-32)}}
+</style>
