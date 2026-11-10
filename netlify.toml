@@ -1,0 +1,8 @@
+# Netlify: збірка статичного сайту Astro. Прев'ю створюється для кожної гілки та pull request.
+[build]
+  # Якщо в налаштуваннях сайту задано FIGMA_TOKEN — спершу тягнемо фото й логотип з Figma у public/images.
+  command = "if [ -n \"$FIGMA_TOKEN\" ]; then npm run assets; fi && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
