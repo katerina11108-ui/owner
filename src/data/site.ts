@@ -17,7 +17,7 @@ export const settings = {
   // Коли буде — кнопка стане «Перейти до оплати» й вестиме у віджет; redirect URL після оплати: /booking/confirmed
   altegioWidget: '', // TODO: Altegio
   instagram: 'https://www.instagram.com/new__psychiatry/',
-  youtube: 'https://www.youtube.com/',
+  youtube: 'https://www.youtube.com/channel/UCpwM4riEDZ3u8qtYbwntBOA',
   license: { holder: 'ТОВ «НПО НЕОІАТРІЯ»', number: '№ 1234', date: '12.03.2021', registry: 'https://moz.gov.ua/' }, // TODO: реальні дані
   crisis: [ { phone: '7333', label: 'Lifeline Ukraine' }, { phone: '112', label: 'Екстрена служба' } ],
   minPrice: 2000, // рахує CMS: мінімальна ціна індивідуальної сесії після перерахунку за курсом
