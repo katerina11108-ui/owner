@@ -1,0 +1,61 @@
+---
+/** Figma 62:81 — "Contacts". The two halves of the word close like a mirror. */
+import FlipLink from '../ui/FlipLink.astro';
+import { contacts } from '../../data/content';
+---
+
+<section class="sec contacts" id="contact" style="--sh:517;--gap:184" aria-labelledby="contact-title" data-scene="contacts">
+  <h2 id="contact-title" class="contacts__title t-h1 nowrap" tabindex="-1">
+    <span class="halves" data-halves>
+      <span class="half half--top">{contacts.heading}</span>
+      <span class="half half--bottom" aria-hidden="true">{contacts.heading}</span>
+    </span>
+  </h2>
+  <p class="t-h4" data-cut><FlipLink href={`mailto:${contacts.email}`} text={contacts.email} /></p>
+  <p class="t-h4" data-cut><FlipLink href={contacts.imdbUrl} text={contacts.imdbLabel} external /></p>
+</section>
+
+<style>
+  .contacts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(21 * var(--u));
+    padding-block: calc(80 * var(--u));
+    margin-bottom: calc(47 * var(--u));
+    text-transform: none;
+  }
+  .contacts .t-h4 {
+    text-transform: uppercase;
+  }
+  .halves {
+    position: relative;
+    display: inline-block;
+    overflow: clip;
+    padding-block: 0.08em;
+    margin-block: -0.08em;
+  }
+  .half {
+    display: block;
+  }
+  .half--top {
+    clip-path: inset(0 0 calc(50% - 1px) 0);
+  }
+  .half--bottom {
+    position: absolute;
+    left: 0;
+    top: 0.08em;
+    width: 100%;
+    clip-path: inset(50% 0 0 0);
+  }
+  @media (max-width: 1099.98px) {
+    .contacts {
+      gap: 16px;
+      padding-block: 96px 120px;
+      margin-bottom: 0;
+    }
+    .contacts__title {
+      font-size: clamp(88px, 26cqw, 220px);
+    }
+  }
+</style>

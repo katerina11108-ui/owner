@@ -1,0 +1,103 @@
+---
+/**
+ * Responsive image in a fixed Figma frame.
+ * - Emits AVIF + WebP srcsets (sharp, build time) and explicit width/height (no CLS).
+ * - `fit` reproduces the Figma fill: 'fill' (stretched to frame — how this file's fills
+ *   are rendered), 'cover', or 'crop' (Figma image transform, percentages).
+ * - `pos` places the frame on the desktop composition, in Figma px.
+ * Default slot = overlay layers (tints, grain) that sit above the image.
+ */
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Pos {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+interface Props {
+  src: ImageMetadata;
+  alt?: string;
+  sizes: string;
+  pos?: Pos;
+  /** In-flow frame size (auto-layout children), in Figma px. */
+  size?: { w: number; h: number };
+  fit?: 'fill' | 'cover' | 'crop';
+  /** Figma image transform for fit="crop": width/height/left/top in % of the frame. */
+  crop?: { w: number; h: number; l: number; t: number };
+  priority?: boolean;
+  stroke?: boolean;
+  /** Enables the fine-pointer "beaten mirror" hover. */
+  hover?: boolean;
+  /** Mobile fit override (stretching is only faithful at the Figma aspect ratio). */
+  mobileFit?: 'cover' | 'fill' | 'crop';
+  class?: string;
+  /** Data attributes for motion hooks. */
+  [key: `data-${string}`]: string | undefined;
+}
+
+const {
+  src,
+  alt = '',
+  sizes,
+  pos,
+  size,
+  fit = 'fill',
+  crop,
+  priority = false,
+  stroke = false,
+  hover = false,
+  mobileFit = 'cover',
+  class: cls,
+  ...rest
+} = Astro.props;
+
+const candidates = [480, 768, 1080, 1440, 1920, 2560];
+const widths = [...new Set([...candidates.filter((w) => w < src.width), src.width])].sort((a, b) => a - b);
+
+async function srcset(format: 'avif' | 'webp') {
+  const out = await Promise.all(
+    widths.map((width) => getImage({ src, width, format, quality: format === 'avif' ? 55 : 72 })),
+  );
+  return out.map((img, i) => `${img.src} ${widths[i]}w`).join(', ');
+}
+
+const [avif, webp, fallback] = await Promise.all([
+  srcset('avif'),
+  srcset('webp'),
+  getImage({ src, width: Math.min(1440, src.width), format: 'webp', quality: 72 }),
+]);
+
+const style = [
+  pos && `--x:${pos.x};--y:${pos.y};--w:${pos.w};--h:${pos.h}`,
+  size && `--w:${size.w};--h:${size.h}`,
+  crop && `--cw:${crop.w};--ch:${crop.h};--cl:${crop.l};--ct:${crop.t}`,
+]
+  .filter(Boolean)
+  .join(';');
+---
+
+<div
+  class:list={['media', pos && 'abs', size && 'sized', stroke && 'media--stroke', hover && 'media-hover', `mfit-${mobileFit}`, cls]}
+  style={style || undefined}
+  {...rest}
+>
+  <div class="media__inner">
+    <picture class="media__picture">
+      <source type="image/avif" srcset={avif} sizes={sizes} />
+      <source type="image/webp" srcset={webp} sizes={sizes} />
+      <img
+        class:list={['media__img', `fit-${fit}`]}
+        src={fallback.src}
+        width={src.width}
+        height={src.height}
+        alt={alt}
+        loading={priority ? 'eager' : 'lazy'}
+        decoding={priority ? 'sync' : 'async'}
+        fetchpriority={priority ? 'high' : 'auto'}
+      />
+    </picture>
+  </div>
+  <slot />
+</div>

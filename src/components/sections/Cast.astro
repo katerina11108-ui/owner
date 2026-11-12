@@ -1,0 +1,180 @@
+---
+/**
+ * Figma 62:63 — "Our cast". Signature moment C: each name and its portrait converge
+ * from opposite sides and lock at the Figma composition when the row is centred.
+ * data-row groups a pair; data-drift = direction it arrives from (-1 left, 1 right).
+ * DOM order follows Figma layer order (it defines the overlaps).
+ */
+import Media from '../ui/Media.astro';
+import eloise from '../../assets/raw/cast-eloise.png';
+import hugo from '../../assets/raw/cast-hugo.png';
+import brenda from '../../assets/raw/cast-brenda.png';
+import oliver from '../../assets/raw/cast-oliver.png';
+import grain from '../../assets/raw/grain.png';
+import { getImage } from 'astro:assets';
+
+const grainImg = await getImage({ src: grain, format: 'webp', quality: 80 });
+const grainLayer = `background-image:url(${grainImg.src});background-size:500px 500px;background-position:0 0;mix-blend-mode:overlay;opacity:0.2`;
+---
+
+<section class="sec cast" id="cast" style="--sh:1855;--gap:184" aria-labelledby="cast-title" data-scene="cast">
+  <Media
+    src={eloise}
+    alt="Eloise Lovell Anderson"
+    sizes="(min-width: 1100px) 25vw, 70vw"
+    pos={{ x: 1012, y: 852, w: 354, h: 450 }}
+    fit="fill"
+    stroke
+    hover
+    class="cast__photo cast__photo--eloise"
+    data-row="eloise"
+    data-drift="1"
+  >
+    <div class="media__layer" style={grainLayer}></div>
+  </Media>
+
+  <h2 id="cast-title" class="cast__title abs t-h2 c-pink nowrap" style="--x:1025;--y:20" tabindex="-1" data-cut>
+    Our cast
+  </h2>
+
+  <p class="cast__roles abs t-h4 c-half nowrap" style="--x:530;--y:528" data-row-cut="hugo">
+    <span>Director,</span>
+    <span>Writer</span>
+  </p>
+  <Media
+    src={hugo}
+    alt="Hugo Johnson"
+    sizes="(min-width: 1100px) 23vw, 70vw"
+    pos={{ x: 429, y: 186, w: 322, h: 315 }}
+    fit="fill"
+    stroke
+    hover
+    class="cast__photo cast__photo--hugo"
+    data-row="hugo"
+    data-rise
+  />
+  <h3 class="cast__name-group">
+    <span class="cast__name cast__hugo abs t-h1" style="--x:-251;--y:325;--w:748" data-row="hugo" data-drift="-1">Hugo</span>
+    <span class="cast__name cast__johnson abs t-h1" style="--x:618;--y:451;--w:748" data-row="hugo" data-drift="1">Johnson</span>
+  </h3>
+
+  <p class="cast__stars abs t-h4 c-half nowrap" style="--x:74;--y:852" data-cut>Stars</p>
+
+  <h3 class="cast__name cast__eloise abs t-h2" style="--x:533;--y:931;--w:531" data-row="eloise" data-drift="-1">
+    <span class="cast__l">Eloise Lovell</span>
+    <span class="cast__l">Anderson</span>
+  </h3>
+  <h3 class="cast__name cast__brenda abs t-h2" style="--x:75;--y:1293;--w:683" data-row="brenda" data-drift="-1">
+    Brenda Patricia Garza
+  </h3>
+  <h3 class="cast__name cast__oliver abs t-h2 nowrap" style="--x:736;--y:1685" data-row="oliver" data-drift="1">
+    Oliver Mayo
+  </h3>
+
+  <Media
+    src={brenda}
+    alt="Brenda Patricia Garza"
+    sizes="(min-width: 1100px) 13vw, 60vw"
+    pos={{ x: 758, y: 1273, w: 182, h: 238 }}
+    fit="cover"
+    stroke
+    hover
+    class="cast__photo cast__photo--brenda"
+    data-row="brenda"
+    data-drift="1"
+  >
+    <div class="media__layer" style={grainLayer}></div>
+  </Media>
+  <Media
+    src={oliver}
+    alt="Oliver Mayo"
+    sizes="(min-width: 1100px) 22vw, 70vw"
+    pos={{ x: 355, y: 1448, w: 315, h: 407 }}
+    fit="cover"
+    stroke
+    hover
+    class="cast__photo cast__photo--oliver"
+    data-row="oliver"
+    data-drift="-1"
+  >
+    <div class="media__layer" style={grainLayer}></div>
+  </Media>
+</section>
+
+<style>
+  .cast__name-group {
+    display: contents;
+  }
+  .cast__hugo,
+  .cast__johnson {
+    text-align: right;
+  }
+  .cast__roles {
+    display: flex;
+    flex-direction: column;
+    gap: calc(12 * var(--u));
+  }
+  .cast__l {
+    display: block;
+  }
+
+  @media (max-width: 1099.98px) {
+    .cast {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .cast__title {
+      order: 1;
+      align-self: flex-end;
+      margin-bottom: 28px;
+    }
+    .cast :global(.cast__photo--hugo) {
+      order: 2;
+      width: 62%;
+      align-self: center;
+    }
+    .cast__hugo {
+      order: 3;
+      text-align: left;
+      margin-top: -0.32em;
+    }
+    .cast__johnson {
+      order: 4;
+      text-align: right;
+    }
+    .cast__roles {
+      order: 5;
+      gap: 6px;
+      margin-bottom: 64px;
+    }
+    .cast__stars {
+      order: 6;
+    }
+    .cast__eloise {
+      order: 7;
+    }
+    .cast :global(.cast__photo--eloise) {
+      order: 8;
+      width: 70%;
+      align-self: flex-end;
+      margin-bottom: 40px;
+    }
+    .cast__brenda {
+      order: 9;
+    }
+    .cast :global(.cast__photo--brenda) {
+      order: 10;
+      width: 46%;
+      margin-bottom: 40px;
+    }
+    .cast__oliver {
+      order: 11;
+      align-self: flex-end;
+    }
+    .cast :global(.cast__photo--oliver) {
+      order: 12;
+      width: 64%;
+    }
+  }
+</style>

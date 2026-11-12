@@ -1,0 +1,150 @@
+---
+/** Figma 62:41 (photo 01), 62:48 (title), 62:56 (Menu), 65:192 (credits / language / stars). */
+import Media from '../ui/Media.astro';
+import FlipLink from '../ui/FlipLink.astro';
+import hero from '../../assets/raw/hero.png';
+import { credits } from '../../data/content';
+---
+
+<section class="sec hero" style="--sh:805" aria-label="Last Dream">
+  <Media src={hero} sizes="100vw" pos={{ x: 0, y: 0, w: 1440, h: 805 }} fit="fill" priority class="hero__media" data-hero-media />
+
+  <nav class="hero__menu abs t-h5" style="--x:74;--y:45" aria-label="Primary" data-intro="chrome">
+    <FlipLink href="#about" text="About" data-anchor />
+    <FlipLink href="#cast" text="Cast" data-anchor />
+    <FlipLink href="#contact" text="Contact" data-anchor />
+  </nav>
+
+  <h1 class="hero__title abs t-h1" style="--x:74;--y:383;--w:565" data-intro="title">
+    <span class="mask"><span class="line">Last</span></span>
+    <span class="mask"><span class="line">Dream</span></span>
+  </h1>
+
+  <aside class="hero__credits abs t-h5" style="--x:1109;--y:45;--w:257" aria-label="Credits" data-intro="chrome">
+    <dl class="hero__crew">
+      <div class="hero__row" style="--g:32">
+        <dt class="c-half">Director</dt>
+        <dd>{credits.director}</dd>
+      </div>
+      <div class="hero__row" style="--g:43">
+        <dt class="c-half">Writer</dt>
+        <dd>{credits.writer}</dd>
+      </div>
+    </dl>
+    <dl class="hero__lang">
+      <div class="hero__lang-inner">
+        <dt>Language</dt>
+        <dd>English</dd>
+      </div>
+    </dl>
+    <dl class="hero__row hero__stars" style="--g:32">
+      <dt class="c-half">Stars</dt>
+      <dd>
+        <ul>
+          {credits.stars.map((s) => <li>{s.name}</li>)}
+        </ul>
+      </dd>
+    </dl>
+  </aside>
+</section>
+
+<style>
+  .hero__menu {
+    display: flex;
+    gap: calc(62 * var(--u));
+    white-space: nowrap;
+    z-index: 2;
+  }
+  .hero__title .mask {
+    white-space: nowrap;
+  }
+  .hero__credits {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: calc(175 * var(--u));
+    white-space: nowrap;
+  }
+  .hero__crew {
+    display: flex;
+    flex-direction: column;
+    gap: calc(24 * var(--u));
+  }
+  .hero__row {
+    display: flex;
+    gap: calc(var(--g) * var(--u));
+    align-items: flex-start;
+  }
+  .hero__stars ul {
+    display: flex;
+    flex-direction: column;
+    gap: calc(12 * var(--u));
+  }
+  .hero__lang {
+    width: calc(24 * var(--u));
+    height: calc(183 * var(--u));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero__lang-inner {
+    display: flex;
+    gap: calc(54 * var(--u));
+    transform: rotate(90deg);
+    flex: none;
+  }
+
+  @media (max-width: 1099.98px) {
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 20px 28px;
+      gap: 28px;
+      overflow: clip;
+    }
+    .hero :global(.hero__media) {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: auto;
+    }
+    .hero__menu {
+      position: relative;
+      gap: 28px;
+    }
+    .hero__title {
+      position: relative;
+      margin-top: auto;
+      font-size: clamp(96px, 30cqw, 240px);
+    }
+    .hero__credits {
+      position: relative;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px 28px;
+    }
+    .hero__crew {
+      gap: 10px;
+    }
+    .hero__row {
+      gap: 16px;
+    }
+    .hero__stars ul {
+      gap: 6px;
+    }
+    .hero__lang {
+      order: 3;
+      width: auto;
+      height: auto;
+    }
+    .hero__lang-inner {
+      transform: none;
+      gap: 16px;
+    }
+  }
+</style>

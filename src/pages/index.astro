@@ -1,0 +1,53 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Intro from '../components/sections/Intro.astro';
+import Hero from '../components/sections/Hero.astro';
+import Statement from '../components/sections/Statement.astro';
+import LastMeal from '../components/sections/LastMeal.astro';
+import Split from '../components/sections/Split.astro';
+import Foreword from '../components/sections/Foreword.astro';
+import Quote from '../components/sections/Quote.astro';
+import Trailer from '../components/sections/Trailer.astro';
+import Cast from '../components/sections/Cast.astro';
+import Contacts from '../components/sections/Contacts.astro';
+import Texture from '../components/ui/Texture.astro';
+import hero from '../assets/raw/hero.png';
+
+// Same candidates Media.astro emits for the hero, so the preload is reused.
+const heroWidths = [480, 768, hero.width];
+const heroAvif = await Promise.all(heroWidths.map((width) => getImage({ src: hero, width, format: 'avif', quality: 55 })));
+const preload = { srcset: heroAvif.map((im, i) => `${im.src} ${heroWidths[i]}w`).join(', '), sizes: '100vw' };
+---
+
+<Base preload={preload}>
+  <Intro />
+  <div class="page">
+    <Hero />
+    <main id="main" tabindex="-1">
+      <div class="zone zone--a">
+        <Statement />
+        <LastMeal />
+        <Split />
+        <Foreword />
+        <Quote />
+        <Texture kind="plate" />
+      </div>
+      <div class="zone zone--b">
+        <Texture kind="prism" />
+        <Trailer />
+        <Cast />
+        <Contacts />
+      </div>
+    </main>
+  </div>
+</Base>
+
+<style>
+  .zone {
+    position: relative;
+  }
+  main:focus {
+    outline: none;
+  }
+</style>

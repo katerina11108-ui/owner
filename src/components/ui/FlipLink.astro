@@ -1,0 +1,26 @@
+---
+/**
+ * Mirror-flip link: on hover/focus the word lifts away while its reflection
+ * (a scaleY(-1) copy) rises and turns upright. CSS-only; timing from motion tokens.
+ */
+interface Props {
+  href: string;
+  text: string;
+  class?: string;
+  external?: boolean;
+  'data-anchor'?: boolean | string;
+}
+const { href, text, class: cls, external = false, ...rest } = Astro.props;
+---
+
+<a
+  class:list={['flip', 'hit', cls]}
+  href={href}
+  {...external ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+  {...rest}
+>
+  <span class="flip__track">
+    <span class="flip__a">{text}</span>
+    <span class="flip__b" aria-hidden="true">{text}</span>
+  </span>{external && <span class="sr-only"> (opens in a new tab)</span>}
+</a>

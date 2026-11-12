@@ -1,0 +1,59 @@
+---
+import '@fontsource/bebas-neue/latin-400.css';
+import '@fontsource/inter/latin-300.css';
+import '../styles/global.css';
+import bebasUrl from '@fontsource/bebas-neue/files/bebas-neue-latin-400-normal.woff2?url';
+import interUrl from '@fontsource/inter/files/inter-latin-300-normal.woff2?url';
+import { cssVars } from '../motion/tokens';
+import { site } from '../data/content';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Hero image preload (AVIF srcset) for LCP. */
+  preload?: { srcset: string; sizes: string };
+}
+const { title = site.title, description = site.description, preload } = Astro.props;
+const rootVars = `:root{${Object.entries(cssVars)
+  .map(([k, v]) => `${k}:${v}`)
+  .join(';')}}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0d0a0a" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href={bebasUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={interUrl} as="font" type="font/woff2" crossorigin />
+    {preload && <link rel="preload" as="image" type="image/avif" imagesrcset={preload.srcset} imagesizes={preload.sizes} fetchpriority="high" />}
+    <style set:html={rootVars}></style>
+    <script is:inline>
+      // Motion gate: before first paint, decide whether the motion layer runs.
+      // Reduced motion → no class → the page renders in its final, static state.
+      (function () {
+        var d = document.documentElement;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        d.classList.add('js-motion');
+        // Failsafe: if the motion bundle never boots, reveal everything.
+        setTimeout(function () {
+          if (!window.__ldMotion) d.classList.remove('js-motion');
+        }, 4000);
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot />
+    <script>
+      import '../motion/index';
+    </script>
+  </body>
+</html>

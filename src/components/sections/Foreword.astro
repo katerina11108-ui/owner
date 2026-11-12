@@ -1,0 +1,53 @@
+---
+/** Figma 83:204 (pink full-bleed 62:19) with heading 62:88 and columns 62:20 / 62:39. */
+import Media from '../ui/Media.astro';
+import bg from '../../assets/raw/foreword-bg.png';
+import { foreword } from '../../data/content';
+---
+
+<section class="sec foreword on-pink" style="--sh:1580" aria-labelledby="foreword-title" data-scene="foreword">
+  <Media src={bg} sizes="100vw" pos={{ x: 0, y: 0, w: 1440, h: 1580 }} fit="fill" class="foreword__bg" data-scrub-settle>
+    <div class="media__layer" style="background:#ee1fc0;mix-blend-mode:difference"></div>
+    <div class="media__layer" style="background:rgb(0 0 0 / 0.11)"></div>
+  </Media>
+  <h2 id="foreword-title" class="foreword__title abs t-h2" style="--x:74;--y:205;--w:703" data-lines="heading">
+    {foreword.heading}
+  </h2>
+  <div class="foreword__col foreword__col--right abs t-p2" style="--x:1119;--y:195;--w:247">
+    {foreword.columnRight.map((p) => <p>{p}</p>)}
+  </div>
+  <div class="foreword__col foreword__col--center abs t-p2" style="--x:604;--y:1095;--w:232">
+    {foreword.columnCenter.map((p) => <p>{p}</p>)}
+  </div>
+</section>
+
+<style>
+  .foreword {
+    background: var(--c-bg);
+  }
+  .foreword :global(.foreword__bg) {
+    mix-blend-mode: hard-light;
+  }
+  @media (max-width: 1099.98px) {
+    .foreword {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      padding-block: 88px;
+    }
+    .foreword :global(.foreword__bg) {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: auto;
+    }
+    .foreword__col {
+      max-width: 460px;
+    }
+    .foreword__col--center {
+      align-self: flex-end;
+      max-width: 340px;
+    }
+  }
+</style>

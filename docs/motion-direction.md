@@ -79,7 +79,7 @@ Registered as GSAP `CustomEase`s with the same names. **`power2.out` is not used
 | Token | Value | Use |
 |---|---|---|
 | `facet-offset` | `±7vh` alternating (desktop), `±4vh` (mobile) | Out‑of‑register mirror strips |
-| `line-mask` | `yPercent: 102` | Display lines rising inside overflow masks |
+| `line-mask` | `yPercent: 125` (clears the 0.08em glyph padding of the mask) | Display lines rising inside overflow masks |
 | `mirror-flip` | `100%` + `scaleY(-1)` | Link hover reflection |
 | `cast-drift` | `±6vw` max, scrubbed | Cast names / portraits converging |
 | `media-settle` | `scale 1.08 → 1` | Images settling inside their frames |

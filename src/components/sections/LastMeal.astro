@@ -1,0 +1,56 @@
+---
+/** Figma 62:26 — two auto-layout columns (Frame 10 / Frame 11). */
+import Media from '../ui/Media.astro';
+import small from '../../assets/raw/meal-small.png';
+import large from '../../assets/raw/meal-large.png';
+import { lastMeal } from '../../data/content';
+---
+
+<section class="sec meal" style="--sh:800" data-scene="meal">
+  <div class="meal__grid abs" style="--x:74;--y:58">
+    <div class="meal__col meal__col--left">
+      <p class="t-h4" style="width:calc(642 * var(--u))">{lastMeal.left}</p>
+      <Media src={small} sizes="(min-width: 1100px) 29vw, 100vw" size={{ w: 414, h: 269 }} stroke hover data-facets="media" />
+    </div>
+    <div class="meal__col meal__col--right">
+      <Media src={large} sizes="(min-width: 1100px) 44vw, 100vw" size={{ w: 628, h: 430 }} stroke hover data-facets="media" />
+      <p class="t-h4" style="width:calc(443 * var(--u))">{lastMeal.right}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .meal__grid {
+    display: flex;
+    gap: calc(22 * var(--u));
+    align-items: flex-start;
+  }
+  .meal__col {
+    display: flex;
+    flex-direction: column;
+  }
+  .meal__col--left {
+    gap: calc(244 * var(--u));
+    align-items: flex-start;
+  }
+  .meal__col--right {
+    gap: calc(155 * var(--u));
+    align-items: flex-end;
+  }
+  @media (max-width: 1099.98px) {
+    .meal__grid {
+      flex-direction: column;
+      gap: 48px;
+    }
+    .meal__col {
+      gap: 32px !important;
+      width: 100%;
+    }
+    .meal__col p {
+      width: auto !important;
+    }
+    .meal__col--right p {
+      max-width: 80%;
+    }
+  }
+</style>

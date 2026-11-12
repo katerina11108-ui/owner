@@ -1,0 +1,39 @@
+---
+/** Figma 62:16 — the director's quote over a b/w still (62:17). */
+import Media from '../ui/Media.astro';
+import bg from '../../assets/raw/quote-bg.png';
+import { quote } from '../../data/content';
+---
+
+<section class="sec quote" style="--sh:896" data-scene="quote">
+  <Media src={bg} sizes="100vw" pos={{ x: 0, y: 0, w: 1440, h: 896 }} fit="fill" class="quote__bg" data-facets="quote">
+    <div class="media__layer" style="background:rgb(0 0 0 / 0.2)"></div>
+  </Media>
+  <blockquote class="quote__text abs t-h3" style="--x:74;--y:148;--w:630" data-lines="quote">
+    <p>{quote}</p>
+  </blockquote>
+</section>
+
+<style>
+  .quote {
+    background: var(--c-bg);
+  }
+  .quote__text {
+    margin: 0;
+  }
+  @media (max-width: 1099.98px) {
+    .quote {
+      padding-block: 96px;
+      min-height: 100svh;
+      display: flex;
+      align-items: flex-start;
+    }
+    .quote :global(.quote__bg) {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: auto;
+    }
+  }
+</style>

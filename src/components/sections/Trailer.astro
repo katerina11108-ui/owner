@@ -1,0 +1,80 @@
+---
+/**
+ * Figma 62:60 — "Official Teaser Trailer". The video is no longer online (author, Phase 2),
+ * so the Figma still is shown with a visible placeholder. Setting `trailer.url` in
+ * src/data/content.ts restores the click-to-play sequence (storyboard row 7).
+ */
+import Media from '../ui/Media.astro';
+import still from '../../assets/raw/trailer.png';
+import { trailer } from '../../data/content';
+---
+
+<section class="sec trailer" style="--sh:731;--gap:184" aria-labelledby="trailer-title" data-scene="trailer">
+  <h2 id="trailer-title" class="trailer__title abs t-h2 nowrap" style="--x:257;--y:24" data-lines="heading">
+    {trailer.heading}
+  </h2>
+  <div class="trailer__frame abs" style="--x:240;--y:191;--w:960;--h:540" data-trailer-frame>
+    <Media src={still} sizes="(min-width: 1100px) 67vw, 100vw" fit="cover" class="trailer__poster" data-facets="trailer" />
+    {
+      trailer.url ? (
+        <button class="trailer__play" type="button" data-trailer-play data-src={trailer.url}>
+          <span class="sr-only">Play {trailer.heading}</span>
+        </button>
+      ) : (
+        <p class="trailer__placeholder t-h5">{trailer.placeholder}</p>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .trailer__frame {
+    transform-origin: 50% 50%;
+  }
+  .trailer :global(.trailer__poster) {
+    position: absolute;
+    inset: 0;
+  }
+  .trailer__placeholder {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    padding: 0.6em 1em;
+    border: 1px dashed var(--c-pink);
+    background: rgb(13 10 10 / 0.82);
+    color: var(--c-white);
+    white-space: nowrap;
+  }
+  .trailer__play {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .trailer__play:focus-visible {
+    outline-offset: -6px;
+  }
+  @media (max-width: 1099.98px) {
+    .trailer {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .trailer__title {
+      white-space: normal;
+    }
+    .trailer__frame {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+    }
+    .trailer__placeholder {
+      white-space: normal;
+      text-align: center;
+      width: max-content;
+      max-width: 86%;
+    }
+  }
+</style>

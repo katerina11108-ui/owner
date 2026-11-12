@@ -1,0 +1,64 @@
+---
+/**
+ * Full-zone light-leak plates from Figma (blend: lighten, 50%).
+ * plate  = 62:38 "Image" — covers statement → quote. Never moves (storyboard G2).
+ * prism  = 62:15 "Prism_Light_Texture_ (116)" — covers trailer → contacts. Drifts (G1).
+ */
+import Media from './Media.astro';
+import plate from '../../assets/raw/plate.png';
+import prism from '../../assets/raw/prism-texture.png';
+
+interface Props {
+  kind: 'plate' | 'prism';
+}
+const { kind } = Astro.props;
+---
+
+{
+  kind === 'plate' ? (
+    <Media
+      src={plate}
+      sizes="(min-width: 1100px) 140vw, 200vw"
+      pos={{ x: -12, y: 4, w: 1472, h: 5061 }}
+      fit="crop"
+      crop={{ w: 257.94, h: 100, l: -78, t: 0 }}
+      mobileFit="crop"
+      class="texture texture--plate"
+    />
+  ) : (
+    <div class="texture texture--prism" data-prism>
+      <Media
+        src={prism}
+        sizes="(min-width: 1100px) 140vw, 200vw"
+        pos={{ x: 0, y: 0, w: 1440, h: 3951 }}
+        fit="crop"
+        crop={{ w: 210, h: 102.05, l: -64.03, t: -2.05 }}
+        mobileFit="crop"
+        class="texture__inner"
+        data-prism-drift
+      />
+    </div>
+  )
+}
+
+<style>
+  .texture {
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: lighten;
+  }
+  .texture--prism {
+    position: absolute;
+    inset: 0;
+  }
+  @media (max-width: 1099.98px) {
+    .texture--plate,
+    .texture--prism :global(.texture__inner) {
+      position: absolute !important;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+      aspect-ratio: auto !important;
+    }
+  }
+</style>

@@ -1,0 +1,45 @@
+---
+/** Figma 62:34 — "A Provocative Cinematic Tale". Menu target: About. */
+import Media from '../ui/Media.astro';
+import img from '../../assets/raw/statement.png';
+import { statement } from '../../data/content';
+---
+
+<section class="sec statement" id="about" style="--sh:800;--gap:6" aria-labelledby="about-label" data-scene="statement">
+  <Media
+    src={img}
+    sizes="(min-width: 1100px) 44vw, 100vw"
+    pos={{ x: 736, y: 77, w: 630, h: 333 }}
+    fit="crop"
+    crop={{ w: 128.5, h: 137.19, l: -28.47, t: -18.18 }}
+    mobileFit="crop"
+    class="statement__media"
+    data-settle
+  />
+  <h2 id="about-label" class="statement__label abs t-h5 c-pink" style="--x:74;--y:87;--w:705" tabindex="-1" data-cut>
+    {statement.label}
+  </h2>
+  <p class="statement__text abs t-h2" style="--x:74;--y:400;--w:996" data-lines="statement">
+    {statement.text}
+  </p>
+</section>
+
+<style>
+  .statement__label {
+    opacity: 0.5;
+    mix-blend-mode: lighten;
+  }
+  .statement__text {
+    mix-blend-mode: lighten;
+  }
+  @media (max-width: 1099.98px) {
+    .statement {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .statement__label {
+      order: -1;
+    }
+  }
+</style>

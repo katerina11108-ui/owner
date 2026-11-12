@@ -1,0 +1,514 @@
+/* ==========================================================================
+   LAST DREAM — global styles
+   Desktop (≥1100px): the Figma 1440 frame, scaled fluidly with one design unit
+   --u = 1 Figma px. Children are placed with --x/--y/--w/--h in Figma px.
+   Below 1100px: a stacked, flow layout derived from the same type and colour
+   (no mobile frame exists in Figma — see README "Deviations").
+   ========================================================================== */
+
+:root {
+  /* Figma variables */
+  --c-bg: #0d0a0a; /* Background */
+  --c-white: #ffffff; /* Main/White */
+  --c-pink: #ff0d64; /* Main/Pink */
+  --c-half: rgb(255 255 255 / 0.64); /* Second/Half white — as rendered in Figma */
+  --c-stroke: #81ff61; /* Stroke_Green_Pink (green leg) */
+
+  --f-display: 'Bebas Neue', 'Bebas Neue Fallback', Impact, 'Arial Narrow', sans-serif;
+  --f-text: 'Inter', 'Inter Fallback', system-ui, sans-serif;
+
+  color-scheme: dark;
+}
+
+/* Metric-adjusted fallbacks keep line boxes stable while webfonts load. */
+@font-face {
+  font-family: 'Bebas Neue Fallback';
+  src: local('Arial Narrow'), local('Arial');
+  size-adjust: 78%;
+  ascent-override: 115%;
+  descent-override: 38%;
+}
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial');
+  size-adjust: 107%;
+  ascent-override: 90%;
+  descent-override: 22%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--c-bg);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.lenis) {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-white);
+  font-family: var(--f-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+img {
+  display: block;
+  max-width: none;
+}
+h1,
+h2,
+h3,
+p,
+dl,
+dd,
+ul {
+  margin: 0;
+  padding: 0;
+  font-weight: 400;
+}
+ul {
+  list-style: none;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 1px solid var(--c-pink);
+  outline-offset: 4px;
+}
+.on-pink :focus-visible {
+  outline: 2px solid var(--c-white);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 200;
+  padding: 10px 14px;
+  background: var(--c-pink);
+  color: var(--c-white);
+  font: 400 18px/1 var(--f-display);
+  letter-spacing: 0.04em;
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible {
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Page & design unit
+   -------------------------------------------------------------------------- */
+.page {
+  container-type: inline-size;
+  position: relative;
+  overflow: clip;
+  background: var(--c-bg);
+}
+.page > * {
+  --u: calc(100cqw / 1440);
+}
+
+/* --------------------------------------------------------------------------
+   Typography — Figma text styles
+   Bebas "Bold"/"Book" are mapped to the available Regular (README: Deviations).
+   -------------------------------------------------------------------------- */
+.t-h1,
+.t-h2,
+.t-h3,
+.t-h4,
+.t-h5 {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-synthesis: none;
+  text-transform: uppercase;
+}
+.t-h1 {
+  font-size: calc(264 * var(--u));
+  line-height: 0.74;
+}
+.t-h2 {
+  font-size: calc(121 * var(--u));
+  line-height: 0.72;
+}
+.t-h3 {
+  font-size: calc(64 * var(--u));
+  line-height: 0.94;
+}
+.t-h4 {
+  font-size: calc(36 * var(--u));
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
+.t-h5 {
+  font-size: max(15px, calc(21 * var(--u)));
+  line-height: 1.12;
+  letter-spacing: 0.04em;
+}
+.t-p2 {
+  font-family: var(--f-text);
+  font-weight: 300;
+  font-size: max(15px, calc(18 * var(--u)));
+  line-height: 1.12;
+  letter-spacing: 0.01em;
+}
+.t-p2 p + p {
+  margin-top: 0.667em; /* 12px at 18px */
+}
+.c-pink {
+  color: var(--c-pink);
+}
+.c-half {
+  color: var(--c-half);
+}
+.nowrap {
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Desktop composition
+   -------------------------------------------------------------------------- */
+@media (min-width: 1100px) {
+  .sec {
+    position: relative;
+    height: calc(var(--sh) * var(--u));
+    margin-top: calc(var(--gap, 0) * var(--u));
+    overflow: clip;
+  }
+  .abs {
+    position: absolute;
+    left: calc(var(--x) * var(--u));
+    top: calc(var(--y) * var(--u));
+    width: calc(var(--w) * var(--u));
+    height: calc(var(--h) * var(--u));
+  }
+  .only-mobile {
+    display: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Media (images) — see components/ui/Media.astro
+   -------------------------------------------------------------------------- */
+.media {
+  overflow: hidden;
+}
+.media__picture,
+.media__img,
+.facet,
+.facet .media__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.media__img.fit-fill {
+  object-fit: fill; /* Figma fills on this file are stretched to frame */
+}
+.media__img.fit-cover {
+  object-fit: cover;
+}
+.media__img.fit-crop {
+  inset: auto;
+  left: calc(var(--cl) * 1%);
+  top: calc(var(--ct) * 1%);
+  width: calc(var(--cw) * 1%);
+  height: calc(var(--ch) * 1%);
+}
+.media__layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.media--stroke {
+  border: 1px solid var(--c-stroke);
+}
+.media--stroke::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--c-pink);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-ui-out) var(--ease-ui);
+}
+.media__inner {
+  position: absolute;
+  inset: 0;
+}
+
+/* Mirror facets (created by src/motion/lib/facets.ts) */
+.facets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.media.has-facets > .media__inner > .media__picture {
+  visibility: hidden;
+}
+
+/* "Beaten mirror" hairline on media hover (fine pointers only, JS adds .media-hover) */
+.hover-split {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  clip-path: polygon(0 0, 100% 0, 100% 46%, 0 58%);
+  transition: transform var(--dur-ui-out) var(--ease-ui);
+}
+@media (hover: hover) and (pointer: fine) {
+  .media-hover:hover .hover-split {
+    transform: translateX(var(--media-split));
+    transition-duration: var(--dur-ui);
+  }
+  .media-hover:hover.media--stroke::after {
+    opacity: 1;
+    transition-duration: var(--dur-ui);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Line masks (SplitText `mask: 'lines'` + hand-split hero lines).
+   Padding/negative margin keeps Bebas glyph tops inside the 0.72–0.74 line box.
+   -------------------------------------------------------------------------- */
+.ld-line-mask,
+.mask {
+  display: block;
+  padding-block: 0.08em;
+  /* Sibling margins collapse instead of adding up, so the full -0.16em sits between
+     lines and the outer edges are trimmed separately: net line pitch = Figma line-height. */
+  margin: 0 0 -0.16em;
+  overflow: clip;
+}
+.ld-line-mask:first-child,
+.mask:first-child {
+  margin-top: -0.08em;
+}
+.ld-line-mask:last-child,
+.mask:last-child {
+  margin-bottom: -0.08em;
+}
+.mask > .line {
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Mirror-flip link — the site's single hover idiom
+   -------------------------------------------------------------------------- */
+.flip {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  overflow: clip;
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+.flip__track {
+  display: block;
+  transition: transform var(--dur-ui-out) var(--ease-ui);
+}
+.flip__a,
+.flip__b {
+  display: block;
+}
+.flip__b {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  transform: scaleY(-1);
+  opacity: 0.3;
+  transition:
+    transform var(--dur-ui-out) var(--ease-ui),
+    opacity var(--dur-ui-out) var(--ease-ui);
+}
+@media (hover: hover) {
+  .flip:hover .flip__track {
+    transform: translateY(-100%);
+    transition-duration: var(--dur-ui);
+  }
+  .flip:hover .flip__b {
+    transform: none;
+    opacity: 1;
+    transition-duration: var(--dur-ui);
+  }
+}
+.flip:focus-visible .flip__track {
+  transform: translateY(-100%);
+}
+.flip:focus-visible .flip__b {
+  transform: none;
+  opacity: 1;
+}
+/* Touch: comfortable hit area without moving the visual position. */
+.hit {
+  position: relative;
+}
+.hit::before {
+  content: '';
+  position: absolute;
+  inset: -12px -10px;
+}
+
+/* --------------------------------------------------------------------------
+   Intro overlay — only exists when motion is on (html.js-motion)
+   -------------------------------------------------------------------------- */
+.intro {
+  display: none;
+}
+.js-motion .intro {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--c-bg);
+  pointer-events: none;
+  overflow: hidden;
+}
+.intro__glint {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  width: 3px;
+  height: 200%;
+  background: linear-gradient(180deg, transparent 0%, var(--c-stroke) 42%, #fff 50%, var(--c-pink) 58%, transparent 100%);
+  filter: blur(0.5px);
+  opacity: 0;
+  transform: rotate(-24deg);
+}
+
+/* Before JS takes over, hero chrome waits behind the intro so nothing flashes. */
+.js-motion [data-intro='title'] .line,
+.js-motion [data-intro='chrome'] {
+  visibility: hidden;
+}
+
+/* Flash overlay for the cut to pink */
+.flash {
+  position: absolute;
+  inset: 0;
+  background: #ffd3e3;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion: everything static and present.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .intro {
+    display: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   In-flow sized frames (Figma auto-layout children)
+   -------------------------------------------------------------------------- */
+.sized {
+  position: relative;
+  flex: none;
+  width: calc(var(--w) * var(--u));
+  height: calc(var(--h) * var(--u));
+}
+
+/* --------------------------------------------------------------------------
+   Below 1100px: stacked layout (derived — no Figma frame exists)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1099.98px) {
+  .page > * {
+    --gutter: 20px;
+  }
+  .sec {
+    position: relative;
+    padding: 72px var(--gutter);
+    overflow: clip;
+  }
+  .abs {
+    position: relative;
+  }
+  .media.abs,
+  .media.sized {
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--w) / var(--h);
+  }
+  .media {
+    position: relative;
+  }
+  .mfit-cover .media__img {
+    object-fit: cover;
+  }
+  .mfit-fill .media__img {
+    object-fit: fill;
+  }
+  .only-desktop {
+    display: none !important;
+  }
+
+  .t-h1 {
+    font-size: clamp(96px, 30cqw, 240px);
+  }
+  .t-h2 {
+    font-size: clamp(52px, 14cqw, 112px);
+  }
+  .t-h3 {
+    font-size: clamp(32px, 8.4cqw, 58px);
+  }
+  .t-h4 {
+    font-size: clamp(22px, 5.4cqw, 32px);
+  }
+  .t-h5 {
+    font-size: 16px;
+  }
+  .t-p2 {
+    font-size: 16px;
+    line-height: 1.3;
+  }
+}
+@media (min-width: 1100px) {
+  .only-mobile {
+    display: none !important;
+  }
+}
+
+/* Facet / hover clones of <picture> */
+.facet__picture {
+  position: absolute;
+  inset: 0;
+}
+.has-facets .hover-split {
+  visibility: hidden;
+}

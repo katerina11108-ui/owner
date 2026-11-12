@@ -1,0 +1,49 @@
+---
+/** Figma 62:21 — grey static half (62:22) + pink half (62:23). Signature moment B: the cut to pink. */
+import Media from '../ui/Media.astro';
+import bg from '../../assets/raw/split-bg.png';
+import { split } from '../../data/content';
+---
+
+<section class="sec split" style="--sh:805;--gap:184" data-scene="split">
+  <Media src={bg} sizes="(min-width: 1100px) 101vw, 100vw" pos={{ x: 0, y: 0, w: 1448, h: 805 }} fit="fill" class="split__bg">
+    <div class="media__layer" style="background: rgb(0 0 0 / 0.38)"></div>
+  </Media>
+  <p class="split__left abs t-p2" style="--x:74;--y:134;--w:308">{split.left}</p>
+  <div class="split__right abs on-pink" style="--x:736;--y:0;--w:704;--h:805">
+    <div class="split__pink" data-cut-pink></div>
+    <div class="flash" data-flash aria-hidden="true"></div>
+    <p class="split__statement abs t-h3" style="--x:150;--y:134;--w:472" data-lines="pink">{split.right}</p>
+  </div>
+</section>
+
+<style>
+  .split :global(.split__bg) {
+    mix-blend-mode: luminosity;
+  }
+  .split__pink {
+    position: absolute;
+    inset: 0;
+    background: var(--c-pink);
+    mix-blend-mode: overlay;
+  }
+  @media (max-width: 1099.98px) {
+    .split {
+      padding: 0;
+    }
+    .split :global(.split__bg) {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: auto;
+    }
+    .split__left {
+      padding: 72px var(--gutter) 56px;
+      max-width: 420px;
+    }
+    .split__right {
+      padding: 56px var(--gutter) 72px;
+    }
+  }
+</style>
